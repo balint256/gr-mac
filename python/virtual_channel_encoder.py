@@ -62,6 +62,8 @@ class virtual_channel_encoder(gr.basic_block):
             
         meta_dict['EM_DEST_ADDR'] = self.channel    
         
+        print meta_dict
+        
         #convert dictionary back to a pmt
         meta = pmt.to_pmt(meta_dict)
         
