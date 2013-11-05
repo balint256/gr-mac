@@ -1,0 +1,8 @@
+/home/john/src/gr-mac/gr-mac/build/swig/CMakeFiles/_mac_swig.dir
+/home/john/src/gr-mac/gr-mac/build/swig/CMakeFiles/_mac_swig_swig_tag.dir
+/home/john/src/gr-mac/gr-mac/build/lib/CMakeFiles/gnuradio-mac.dir
+/home/john/src/gr-mac/gr-mac/build/apps/CMakeFiles/pygen_apps_9a6dd.dir
+/home/john/src/gr-mac/gr-mac/build/python/CMakeFiles/pygen_python_75a15.dir
+/home/john/src/gr-mac/gr-mac/build/swig/CMakeFiles/pygen_swig_39fee.dir
+/home/john/src/gr-mac/gr-mac/build/lib/CMakeFiles/test-mac.dir
+/home/john/src/gr-mac/gr-mac/build/CMakeFiles/uninstall.dir

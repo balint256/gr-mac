@@ -1,0 +1,1 @@
+/usr/bin/c++   -O3 -DNDEBUG    CMakeFiles/test-mac.dir/test_mac.cc.o CMakeFiles/test-mac.dir/qa_mac.cc.o  -o test-mac -rdynamic /usr/local/lib/libgnuradio-runtime.so -lboost_filesystem -lboost_system -lcppunit -ldl libgnuradio-mac.so /usr/local/lib/libgnuradio-runtime.so -lboost_filesystem -lboost_system -Wl,-rpath,/home/john/src/gr-mac/gr-mac/build/lib:/usr/local/lib 
