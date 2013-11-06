@@ -1,64 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Nov  5 14:22:32 2013</timestamp>
-  <block>
-    <key>blocks_message_strobe</key>
-    <param>
-      <key>id</key>
-      <value>blocks_message_strobe_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>msg</key>
-      <value>pmt.intern("TEST")</value>
-    </param>
-    <param>
-      <key>period</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(88, 403)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32000</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(10, 170)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
+  <timestamp>Tue Nov  5 14:44:50 2013</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -119,6 +61,52 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>32000</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(10, 170)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_message_debug</key>
+    <param>
+      <key>id</key>
+      <value>blocks_message_debug_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(288, 106)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
     <key>mac_virtual_channel_encoder</key>
     <param>
       <key>id</key>
@@ -134,7 +122,7 @@
     </param>
     <param>
       <key>arq</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>affinity</key>
@@ -146,7 +134,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(614, 481)</value>
+      <value>(591, 274)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -154,26 +142,22 @@
     </param>
   </block>
   <block>
-    <key>simple_mac</key>
+    <key>blocks_random_pdu</key>
     <param>
       <key>id</key>
-      <value>simple_mac_0_0</value>
+      <value>blocks_random_pdu_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>addr</key>
-      <value>1</value>
+      <key>minsize</key>
+      <value>5</value>
     </param>
     <param>
-      <key>maximum_attempts</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>timeout</key>
-      <value>0.1</value>
+      <key>maxsize</key>
+      <value>5</value>
     </param>
     <param>
       <key>affinity</key>
@@ -185,7 +169,77 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(921, 323)</value>
+      <value>(322, 273)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_message_strobe</key>
+    <param>
+      <key>id</key>
+      <value>blocks_message_strobe_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>msg</key>
+      <value>pmt.intern("TEST")</value>
+    </param>
+    <param>
+      <key>period</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(494, 404)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_message_strobe</key>
+    <param>
+      <key>id</key>
+      <value>blocks_message_strobe_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>msg</key>
+      <value>pmt.intern("TEST")</value>
+    </param>
+    <param>
+      <key>period</key>
+      <value>7500</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(214, 463)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -232,45 +286,26 @@
     </param>
   </block>
   <block>
-    <key>blocks_message_debug</key>
+    <key>simple_mac</key>
     <param>
       <key>id</key>
-      <value>blocks_message_debug_0</value>
+      <value>simple_mac_0_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
+      <key>addr</key>
+      <value>1</value>
     </param>
     <param>
-      <key>_coordinate</key>
-      <value>(288, 106)</value>
+      <key>maximum_attempts</key>
+      <value>10</value>
     </param>
     <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_random_pdu</key>
-    <param>
-      <key>id</key>
-      <value>blocks_random_pdu_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>minsize</key>
-      <value>5</value>
-    </param>
-    <param>
-      <key>maxsize</key>
-      <value>5</value>
+      <key>timeout</key>
+      <value>0.1</value>
     </param>
     <param>
       <key>affinity</key>
@@ -282,19 +317,13 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(345, 480)</value>
+      <value>(921, 323)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
   </block>
-  <connection>
-    <source_block_id>simple_mac_0</source_block_id>
-    <sink_block_id>simple_mac_0_0</sink_block_id>
-    <source_key>to_radio</source_key>
-    <sink_key>from_radio</sink_key>
-  </connection>
   <connection>
     <source_block_id>simple_mac_0_0</source_block_id>
     <sink_block_id>simple_mac_0</sink_block_id>
@@ -308,12 +337,6 @@
     <sink_key>generate</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_random_pdu_0</source_block_id>
-    <sink_block_id>mac_virtual_channel_encoder_0</sink_block_id>
-    <source_key>pdus</source_key>
-    <sink_key>in</sink_key>
-  </connection>
-  <connection>
     <source_block_id>mac_virtual_channel_encoder_0</source_block_id>
     <sink_block_id>simple_mac_0_0</sink_block_id>
     <source_key>out</source_key>
@@ -324,5 +347,23 @@
     <sink_block_id>blocks_message_debug_0</sink_block_id>
     <source_key>to_app</source_key>
     <sink_key>print_pdu</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_random_pdu_0</source_block_id>
+    <sink_block_id>mac_virtual_channel_encoder_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_message_strobe_0_0</source_block_id>
+    <sink_block_id>simple_mac_0_0</sink_block_id>
+    <source_key>strobe</source_key>
+    <sink_key>ctrl_in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>simple_mac_0</source_block_id>
+    <sink_block_id>simple_mac_0_0</sink_block_id>
+    <source_key>to_radio</source_key>
+    <sink_key>from_radio</sink_key>
   </connection>
 </flow_graph>

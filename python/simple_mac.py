@@ -206,6 +206,7 @@ class simple_mac(gr.basic_block):
                     if not (self.arq_expected_sequence_number == incoming_pkt[PKT_INDEX_CNT]):
                         self.arq_sequence_error_cnt += 1
                         self.throw_away = True
+                        #print "Throw away"
                     else:
                         self.throw_away = False
                     self.arq_expected_sequence_number =  ( incoming_pkt[PKT_INDEX_CNT] + 1 ) % 255 
@@ -303,4 +304,5 @@ class simple_mac(gr.basic_block):
                     self.time_of_tx = time.time()
                     self.arq_retxed += 1
                     self.retries += 1
+                    print "Retry"
                     #TODO: implement exponential back-off

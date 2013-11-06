@@ -33,6 +33,7 @@ GR_PYTHON_INSTALL(
     __init__.py
     simple_mac.py
     virtual_channel_encoder.py
+    packet_framer.py
     simple_mac.py DESTINATION ${GR_PYTHON_DIR}/mac
 )
 

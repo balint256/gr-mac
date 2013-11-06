@@ -48,6 +48,8 @@ from mac_swig import *
 from simple_mac import simple_mac
 
 from virtual_channel_encoder import virtual_channel_encoder
+
+from packet_framer import packet_framer
 #
 
 # ----------------------------------------------------------------
