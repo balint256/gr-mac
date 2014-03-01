@@ -30,7 +30,7 @@ list(APPEND mac_sources
 )
 
 add_library(gnuradio-mac SHARED ${mac_sources})
-target_link_libraries(gnuradio-mac ${Boost_LIBRARIES} ${GNURADIO_RUNTIME_LIBRARIES})
+target_link_libraries(gnuradio-mac ${Boost_LIBRARIES} ${GNURADIO_RUNTIME_LIBRARIES} ${GNURADIO_PMT_LIBRARIES})
 set_target_properties(gnuradio-mac PROPERTIES DEFINE_SYMBOL "gnuradio_mac_EXPORTS")
 
 ########################################################################
