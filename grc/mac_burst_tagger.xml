@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<block>
+  <name>Burst Tagger</name>
+  <key>mac_burst_tagger</key>
+  <category>gr-mac</category>
+  <import>import pmt</import>
+  <import>import mac</import>
+  <make>mac.burst_tagger($tag_name, $mult, $pad_front, $pad_rear)</make>
+
+  <param>
+    <name>Tag Name</name>
+    <key>tag_name</key>
+    <value>'length'</value>
+    <type>string</type>
+  </param>
+
+  <param>
+    <name>Multiplier</name>
+    <key>mult</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+
+  <param>
+		<name>Pad Front</name>
+		<key>pad_front</key>
+		<value>0</value>
+		<type>int</type>
+	</param>
+	
+	<param>
+		<name>Pad Rear</name>
+		<key>pad_rear</key>
+		<value>0</value>
+		<type>int</type>
+	</param>
+
+  <check>$pad_front >= 0</check>
+  <check>$pad_rear >= 0</check>
+  <check>$mult > 0</check>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+
+<doc>Multiplier does not affect padding</doc>
+</block>
+

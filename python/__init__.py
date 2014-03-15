@@ -46,11 +46,10 @@ from mac_swig import *
 
 # import any pure python here
 from simple_mac import simple_mac
-
 from virtual_channel_encoder import virtual_channel_encoder
-
-from packet_framer import packet_framer
-#
+from virtual_channel_decoder import virtual_channel_decoder
+from packet_framer import packet_framer, packet_deframer, packet_to_pdu
+from tracker_802_3 import tracker_802_3
 
 # ----------------------------------------------------------------
 # Tail of workaround

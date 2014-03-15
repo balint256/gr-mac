@@ -18,24 +18,23 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+import sys, time, random, struct
+from math import pi
+import Queue
 import numpy
 from gnuradio import gr
-from math import pi
 import pmt
 from gnuradio.digital import packet_utils
 import gnuradio.digital as gr_digital
-import Queue
-import time
 
-OTA_OUT = 'U'
-USER_DATA = 'D'
-USER_DATA_MULTIPLEXED = 'E'
+#OTA_OUT = 'U'
+#USER_DATA = 'D'
+#USER_DATA_MULTIPLEXED = 'E'
 
-OTA_IN = 'V'
-INTERNAL = 'W'
+#OTA_IN = 'V'
+#INTERNAL = 'W'
 
 HEARTBEAT = 'H'
-
 
 ARQ_REQ = 85
 ARQ_NO_REQ = 86
@@ -43,25 +42,27 @@ ARQ_NO_REQ = 86
 ARQ_PROTOCOL_ID = 90
 BROADCAST_PROTOCOL_ID = 91
 USER_IO_PROTOCOL_ID = 92
-USER_IO_MULTIPLEXED_ID = 93
+#USER_IO_MULTIPLEXED_ID = 93
+DUMMY_PROTOCOL_ID = 94
 
 BROADCAST_ADDR = 255
 
 #block port definitions
-RADIO_PORT = 0
-APP_PORT = 1
-CTRL_PORT = 2
+#RADIO_PORT = 0
+#APP_PORT = 1
+#CTRL_PORT = 2
 
 #msg key indexes for radio outbound blobs
-KEY_INDEX_CTRL = 0
-KEY_INDEX_DEST_ADDR = 1
+#KEY_INDEX_CTRL = 0
+#KEY_INDEX_DEST_ADDR = 1
 
 #msg key indexes for internal control messages
-KEY_INT_MSG_TYPE = 0    
+#KEY_INT_MSG_TYPE = 0    
 
 #Packet index definitions
+PKT_INDEX_MAX = 5   # Packet length
 PKT_INDEX_CTRL = 4
-PKT_INDEX_PROT_ID = 3     
+PKT_INDEX_PROT_ID = 3
 PKT_INDEX_DEST = 2
 PKT_INDEX_SRC = 1
 PKT_INDEX_CNT = 0
@@ -74,11 +75,28 @@ ARQ_CHANNEL_IDLE = 0
 #                   Simple MAC w/ ARQ
 # /////////////////////////////////////////////////////////////////////////////
 
+class Node():
+    def __init__(self, id):
+        self.id = id
+        self.last_heard = None
+        self.alive = False
+    def update(self, time):
+        was_alive = self.alive
+        self.alive = True
+        self.last_heard = time
+        return (was_alive == False) and (self.alive)
+    def expire(self):
+        self.alive = False
+
 class simple_mac(gr.basic_block):
+#class simple_mac(gr.sync_block):
     """
     docstring for block mac
     """
-    def __init__( self,addr,timeout,max_attempts):
+    def __init__(self, addr, timeout, max_attempts, broadcast_interval=2.0,
+            exp_backoff=True, backoff_randomness=0.05,
+            node_expiry_delay=10.0, expire_on_arq_failure=False, only_send_if_alive=False,
+            prepend_dummy=False):
         gr.basic_block.__init__(self,
             name="simple_mac",
             in_sig=None,
@@ -91,218 +109,369 @@ class simple_mac(gr.basic_block):
         
         self.arq_expected_sequence_number = 0            #keep track for sequence error detection
         self.no_arq_expected_sequence_number = 0        #keep track for sequence error detection
-
+        
         self.arq_sequence_error_cnt = 0                    #arq channel seq errors - VERY BAD
         self.no_arq_sequence_error_cnt = 0                #non-arq channel seq error count
         self.arq_pkts_txed = 0                            #how many arq packets we've transmitted
         self.arq_retxed = 0                                #how many times we've retransmitted
         self.failed_arq = 0
         self.max_attempts = max_attempts
-        self.throw_away = False
-                                
+        
         self.arq_channel_state = ARQ_CHANNEL_IDLE
         self.expected_arq_id = 0                        #arq id we're expected to get ack for      
         self.timeout = timeout                            #arq timeout parameter
         self.time_of_tx = 0.0                            #time of last arq transmission
+        self.exp_backoff = exp_backoff
+        self.backoff_randomness = backoff_randomness
+        self.next_random_backoff_percentage = 0.0
         
         self.queue = Queue.Queue()                        #queue for msg destined for ARQ path
         
+        self.last_broadcast_time = None
+        self.broadcast_interval = broadcast_interval
+        self.nodes = {}
+        self.node_expiry_delay = node_expiry_delay
+        self.expire_on_arq_failure = expire_on_arq_failure
+        self.only_send_if_alive = only_send_if_alive
+        
+        self.prepend_dummy = prepend_dummy
         
         #message i/o for radio interface
         self.message_port_register_out(pmt.intern('to_radio'))
         self.message_port_register_in(pmt.intern('from_radio'))
-        self.set_msg_handler(pmt.intern('from_radio'),self.radio_rx)
-
+        self.set_msg_handler(pmt.intern('from_radio'), self.radio_rx)
+        
         #message i/o for app interface
         self.message_port_register_out(pmt.intern('to_app'))
         self.message_port_register_in(pmt.intern('from_app'))
-        self.set_msg_handler(pmt.intern('from_app'),self.app_rx)
-
+        self.set_msg_handler(pmt.intern('from_app'), self.app_rx)
+        
+        try:
+            self.message_port_register_in(pmt.intern('from_app_arq'), True)
+            print "Simple MAC ARQ in blocking mode"
+        except:
+        #if True:
+            print "Simple MAC ARQ in non-blocking mode"
+            self.message_port_register_in(pmt.intern('from_app_arq'))
+            self.set_msg_handler(pmt.intern('from_app'), self.app_rx_arq)
+        
         #message i/o for ctrl interface
         self.message_port_register_out(pmt.intern('ctrl_out'))
         self.message_port_register_in(pmt.intern('ctrl_in'))
-        self.set_msg_handler(pmt.intern('ctrl_in'),self.ctrl_rx)
+        self.set_msg_handler(pmt.intern('ctrl_in'), self.ctrl_rx)
+    
+    def general_work(self, input_items, output_items):
+    #    return self.work(input_items, output_items)
+    
+    #def work(self, input_items, output_items):
+        #sys.stdout.write('.')
+        #sys.stdout.flush()
+        if self.arq_channel_state == ARQ_CHANNEL_IDLE:
+            #msg = self.delete_head_nowait(pmt.intern('from_app_arq'))
+            msg = self.pop_msg_queue(pmt.intern('from_app_arq'))
+            if pmt.is_null(msg):
+                return 0
+            #print "Via work:", msg
+            self.app_rx_arq(msg)
+        else:
+            #print "Not doing any work while ARQ channel is busy"
+            pass
+        return 0
+    
     
     #transmit layer 3 broadcast packet
     def send_bcast_pkt(self):
-        msg = ''
-        self.send_pkt_radio_2(msg,BROADCAST_ADDR,BROADCAST_PROTOCOL_ID,ARQ_NO_REQ)
+        self.send_pkt_radio((None, {'EM_DEST_ADDR':BROADCAST_ADDR}), 0, BROADCAST_PROTOCOL_ID, ARQ_NO_REQ)
+        self.last_broadcast_time = time.time()
     
-    
-
     
     #transmit ack packet
-    def send_ack(self,ack_addr,ack_pkt_cnt):
+    def send_ack(self, ack_addr, ack_pkt_cnt):
        data = (ack_pkt_cnt,)
-       meta_dict = {}
-       meta_dict['EM_DEST_ADDR'] = ack_addr
+       meta_dict = {'EM_DEST_ADDR': ack_addr}
        pdu_tuple = ( data, meta_dict )
-       self.tx_no_arq(pdu_tuple,ARQ_PROTOCOL_ID)
-       return
+       self.tx_no_arq(pdu_tuple, ARQ_PROTOCOL_ID)
+    
     
     #transmit data through non-arq path    
-    def tx_no_arq(self,pdu_tuple,protocol_id):
-        self.send_pkt_radio(pdu_tuple,self.pkt_cnt_no_arq,protocol_id,ARQ_NO_REQ)
+    def tx_no_arq(self, pdu_tuple, protocol_id):
+        self.send_pkt_radio(pdu_tuple, self.pkt_cnt_no_arq, protocol_id, ARQ_NO_REQ)
         self.pkt_cnt_no_arq = ( self.pkt_cnt_no_arq + 1 ) % 255
-        return
+    
     
     #transmit data - msg is numpy array
-    def send_pkt_radio(self,pdu_tuple,pkt_cnt,protocol_id,control):
-
-        #create header, merge with payload, convert to pmt for message_pub
-        data = (pkt_cnt,self.addr,pdu_tuple[1]['EM_DEST_ADDR'],protocol_id,control) + pdu_tuple[0]
-
-        data = pmt.init_u8vector(len(data),data)
+    def send_pkt_radio(self, pdu_tuple, pkt_cnt, protocol_id, control, allow_dummy=True):
+        meta_data = pdu_tuple[1]
+        if allow_dummy:
+            prepend_dummy = self.prepend_dummy or ('EM_PREPEND_DUMMY' in meta_data.keys() and meta_data['EM_PREPEND_DUMMY'])
+            if prepend_dummy:
+                #meta_data['EM_PREPEND_DUMMY'] = False
+                #sys.stdout.write('.')
+                #sys.stdout.flush()
+                self.send_pkt_radio(pdu_tuple, pkt_cnt, DUMMY_PROTOCOL_ID, control, False)
         
+        payload = pdu_tuple[0]
+        if payload is None:
+            payload = []
+        elif isinstance(payload, str):
+            payload = map(ord, list(payload))
+        elif not isinstance(payload, list):
+            payload = list(payload)
+        
+        dest_addr = meta_data['EM_DEST_ADDR']
+        if dest_addr == -1:
+            dest_addr = BROADCAST_ADDR
+        elif dest_addr < -1 or dest_addr > BROADCAST_ADDR:
+            print "Invalid address:", dest_addr
+            return
+        
+        #create header, merge with payload, convert to pmt for message_pub
+        data = [
+            pkt_cnt,
+            self.addr,
+            dest_addr,
+            protocol_id,
+            control
+        ]
+        
+        data += payload
+        
+        data = pmt.init_u8vector(len(data), data)
         meta = pmt.to_pmt({})
         
         #construct pdu and publish to radio port
-        pdu = pmt.cons(meta,data)
+        pdu = pmt.cons(meta, data)
         
         #publish to msg port
-        self.message_port_pub(pmt.intern('to_radio'),pdu)       
-        return   
+        self.message_port_pub(pmt.intern('to_radio'),pdu)
     
     
     #transmit data through arq path
-    def tx_arq(self,pdu_tuple,protocol_id):
-        self.send_pkt_radio(pdu_tuple,self.pkt_cnt_arq,protocol_id,ARQ_REQ)
-        return
+    def tx_arq(self, pdu_tuple, protocol_id):
+        self.send_pkt_radio(pdu_tuple, self.pkt_cnt_arq, protocol_id, ARQ_REQ)
+    
+    
+    def output_user_data(self, pdu_tuple):
+        data = []
+        if (len(pdu_tuple[0]) > PKT_INDEX_MAX):
+            data = pdu_tuple[0][PKT_INDEX_MAX:]
         
-
+        data = pmt.init_u8vector(len(data), data)
         
-    def output_user_data(self,pdu_tuple):
-        if (len(pdu_tuple[0])  > 5):
-            data = pdu_tuple[0][5:]
-            
-        data = pmt.init_u8vector(len(data),data)
-
         #pass through metadata if there is any
         meta = pmt.to_pmt(pdu_tuple[1])
-
-        self.message_port_pub(pmt.intern('to_app'),pmt.cons(meta,data))
         
-        
-
-    def radio_rx(self,msg):
+        self.message_port_pub(pmt.intern('to_app'), pmt.cons(meta,data))
+    
+    
+    def check_nodes(self):
+        time_now = time.time()
+        for n in self.nodes.keys():
+            node = self.nodes[n]
+            if node.alive:
+                diff = time_now - node.last_heard
+                if diff > self.node_expiry_delay:
+                    node.expire()
+                    print "Node %03d disappeared" % (node.id)
+    
+    
+    def radio_rx(self, msg):
         try:            
             meta = pmt.car(msg)
             data =  pmt.cdr(msg)
         except:
-            raise NameError("mac - input not a PDU")
+            #raise NameError("mac - input not a PDU")
+            print "Message is not a PDU"
+            return
             
         if pmt.is_u8vector(data):
             data = pmt.u8vector_elements(data)
         else:
-            raise NameError("Data is not u8 vector")
-            
-        incoming_pkt = data    #get data
-        if ( len(incoming_pkt) > 5 ): #check for weird header only stuff
-            if( ( incoming_pkt[PKT_INDEX_DEST] == self.addr or incoming_pkt[PKT_INDEX_DEST] == 255)  and not incoming_pkt[PKT_INDEX_SRC] == self.addr):    #for us?  
-                   
-                #check to see if we must ACK this packet
-                if(incoming_pkt[PKT_INDEX_CTRL] == ARQ_REQ): #TODO, stuff CTRL and Protocol in one field
-                    self.send_ack(incoming_pkt[PKT_INDEX_SRC],incoming_pkt[PKT_INDEX_CNT])                        #Then send ACK then
-                    if not (self.arq_expected_sequence_number == incoming_pkt[PKT_INDEX_CNT]):
-                        self.arq_sequence_error_cnt += 1
-                        self.throw_away = True
-                        #print "Throw away"
-                    else:
-                        self.throw_away = False
-                    self.arq_expected_sequence_number =  ( incoming_pkt[PKT_INDEX_CNT] + 1 ) % 255 
-                    
-                else:
-                    if not (self.no_arq_expected_sequence_number == incoming_pkt[PKT_INDEX_CNT]):
-                        self.no_arq_sequence_error_cnt += 1
-                        #print self.no_arq_sequence_error_cnt
-                        #print self.no_arq_sequence_error_cnt,incoming_pkt[PKT_INDEX_CNT],self.no_arq_expected_sequence_number
-                    self.no_arq_expected_sequence_number =  ( incoming_pkt[PKT_INDEX_CNT] + 1 ) % 255 
-
-                incoming_protocol_id = incoming_pkt[PKT_INDEX_PROT_ID]
-                
-                #check to see if this is an ACK packet
-                if(incoming_protocol_id == ARQ_PROTOCOL_ID):
-                    if incoming_pkt[5] == self.expected_arq_id:
-                        self.arq_channel_state = ARQ_CHANNEL_IDLE
-                        self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 255
-                    else:
-                        print 'received out of sequence ack',incoming_pkt[5],self.expected_arq_id
-                
-                #do something with incoming user data
-                elif(incoming_protocol_id == USER_IO_PROTOCOL_ID):
-                    if not self.throw_away:
-                        data = incoming_pkt
-                        meta_dict = {}
-                        pdu_tuple = (data,meta_dict)
-                        self.output_user_data(pdu_tuple)   
-                    self.throw_away = False
-                        
-                else:
-                    print 'unknown protocol'
-            
-        self.run_arq_fsm()
-
+            #raise NameError("Data is not u8 vector")
+            print "Data is not a u8vector"
+            return
         
-    def app_rx(self,msg):
-        try:            
-            meta = pmt.car(msg)
-            data =  pmt.cdr(msg)
-        except:
-            raise NameError("mac - input not a PDU")
-            
-        if pmt.is_u8vector(data):
-            data = pmt.u8vector_elements(data)
-        else:
-            raise NameError("Data is not u8 vector")
-
         meta_dict = pmt.to_python(meta)
         if not (type(meta_dict) is dict):
             meta_dict = {}
         
-        #double check to make sure correct meta data was in pdu
-        if 'EM_USE_ARQ' in meta_dict.keys() and 'EM_DEST_ADDR' in meta_dict.keys():
-            #assign tx path depending on whether PMT_BOOL EM_USE_ARQ is true or false
-            if(meta_dict['EM_USE_ARQ']):
-                self.queue.put( (data,meta_dict) )
-            else:
-                self.tx_no_arq(( data,meta_dict) ,USER_IO_PROTOCOL_ID)
-        else:
-            raise NameError("EM_USE_ARQ and/or EM_DEST_ADDR not specified in PDU")
+        if len(data) >= PKT_INDEX_MAX: #check for weird header only stuff
+            meta_dict['EM_SRC_ID'] = data[PKT_INDEX_SRC]
             
+            if not data[PKT_INDEX_SRC] == self.addr:
+                #print "Heard node", data[PKT_INDEX_SRC]
+                if data[PKT_INDEX_SRC] in self.nodes.keys():
+                    node = self.nodes[data[PKT_INDEX_SRC]]
+                else:
+                    node = Node(data[PKT_INDEX_SRC])
+                    self.nodes[data[PKT_INDEX_SRC]] = node
+                
+                if node.update(time.time()):
+                    print "Node %03d alive" % (node.id)
+            #else:
+            #    print "Heard myself"
+            
+            discard = False
+            
+            incoming_protocol_id = data[PKT_INDEX_PROT_ID]
+            if (incoming_protocol_id != DUMMY_PROTOCOL_ID) and ((data[PKT_INDEX_DEST] == self.addr or data[PKT_INDEX_DEST] == BROADCAST_ADDR) and (not data[PKT_INDEX_SRC] == self.addr)):  # for us?
+                #check to see if we must ACK this packet
+                if (data[PKT_INDEX_CTRL] == ARQ_REQ): #TODO, stuff CTRL and Protocol in one field
+                    self.send_ack(data[PKT_INDEX_SRC], data[PKT_INDEX_CNT]) #Then send ACK then
+                    if not (self.arq_expected_sequence_number == data[PKT_INDEX_CNT]):
+                        self.arq_sequence_error_cnt += 1
+                        print "Discarding out-of-sequence data: %03d (expected %03d)" % (data[PKT_INDEX_CNT], self.arq_expected_sequence_number)
+                        discard = True
+                    self.arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 255
+                
+                elif incoming_protocol_id != BROADCAST_PROTOCOL_ID:
+                    if not (self.no_arq_expected_sequence_number == data[PKT_INDEX_CNT]):
+                        self.no_arq_sequence_error_cnt += 1
+                        print "Out-of-sequence data: %03d (expected %03d)" % (data[PKT_INDEX_CNT], self.no_arq_expected_sequence_number)
+                    self.no_arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 255
+                
+                #check to see if this is an ACK packet
+                if incoming_protocol_id == ARQ_PROTOCOL_ID:
+                    if data[5] == self.expected_arq_id:
+                        self.arq_channel_state = ARQ_CHANNEL_IDLE
+                        self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 255
+                        #diff = time.time() - self.time_of_tx
+                        #print "==> ACK took %f sec" % (diff)
+                    else:
+                        print "Received out-of-sequence ACK: %03d (expected %03d)" % (data[5], self.expected_arq_id)
+                
+                #do something with incoming user data
+                elif incoming_protocol_id == USER_IO_PROTOCOL_ID:
+                    if not discard:
+                        pdu_tuple = (data, meta_dict)
+                        self.output_user_data(pdu_tuple)
+                
+                elif incoming_protocol_id == BROADCAST_PROTOCOL_ID:
+                    pass
+                
+                else:
+                    print "Unknown protocol: %d" % (incoming_protocol_id)
+        else:
+            print "Did not receive enough bytes for a header (only got %d)" % (len(data))
+        
+        #self.run_arq_fsm()
+    
+    
+    def app_rx(self, msg):
+        self._app_rx(msg, False)
+    
+    def app_rx_arq(self, msg):
+        self._app_rx(msg, True)
+    
+    def _app_rx(self, msg, arq):
+        try:
+            meta = pmt.car(msg)
+            data =  pmt.cdr(msg)
+        except:
+            #raise NameError("mac - input not a PDU")
+            print "Message is not a PDU"
+            return
+        
+        if pmt.is_u8vector(data):
+            data = pmt.u8vector_elements(data)
+        else:
+            #raise NameError("Data is not u8 vector")
+            print "Data is not a u8vector"
+            return
+        
+        meta_dict = pmt.to_python(meta)
+        if not (type(meta_dict) is dict):
+            meta_dict = {}
+        
+        if arq:
+            meta_dict['EM_USE_ARQ'] = True
+        
+        if (not 'EM_DEST_ADDR' in meta_dict.keys()) or (meta_dict['EM_DEST_ADDR'] == -1):
+            meta_dict['EM_DEST_ADDR'] = BROADCAST_ADDR
+        
+        self.dispatch_app_rx(data, meta_dict)
+    
+    
+    def dispatch_app_rx(self, data, meta_dict):
+        #double check to make sure correct meta data was in PDU
+        if 'EM_USE_ARQ' in meta_dict.keys() and 'EM_DEST_ADDR' in meta_dict.keys():
+            use_arq = meta_dict['EM_USE_ARQ']
+            dest_addr = meta_dict['EM_DEST_ADDR']
+            
+            if dest_addr == BROADCAST_ADDR and use_arq:
+                print "Not using ARQ for broadcast packet"
+                use_arq = False
+            
+            if dest_addr != BROADCAST_ADDR and self.only_send_if_alive:
+                if not dest_addr in self.nodes.keys():
+                    print "Not sending packet to %03d as it hasn't been seen yet" % (dest_addr)
+                    return
+                elif not self.nodes[dest_addr].alive:
+                    print "Not sending packet to %03d as it isn't alive" % (dest_addr)
+                    return
+            
+            #assign tx path depending on whether PMT_BOOL EM_USE_ARQ is true or false
+            if use_arq and dest_addr != BROADCAST_ADDR:
+                self.queue.put( (data, meta_dict) )
+                self.run_arq_fsm()
+            else:
+                self.tx_no_arq( (data, meta_dict), USER_IO_PROTOCOL_ID)
+        else:
+            #raise NameError("EM_USE_ARQ and/or EM_DEST_ADDR not specified in PDU")
+            print "PDU missing MAC metadata"
+        
+        #self.run_arq_fsm()
+    
+    
+    def ctrl_rx(self,msg):
+        if self.last_broadcast_time is None or (time.time() - self.last_broadcast_time) >= self.broadcast_interval:
+            self.send_bcast_pkt()
+        
         self.run_arq_fsm()
         
-    def ctrl_rx(self,msg):
-        self.run_arq_fsm()
-
+        self.check_nodes()
+    
     
     def run_arq_fsm(self):
-        #check to see if we have any outgoing messages from arq buffer we should send
-        #or pending re-transmissions
+        #check to see if we have any outgoing messages from arq buffer we should send or pending re-transmissions
         if self.arq_channel_state == ARQ_CHANNEL_IDLE: #channel ready for next arq msg
             if not self.queue.empty(): #we have an arq msg to send, so lets send it
                 #print self.queue.qsize()
                 self.arq_pdu_tuple = self.queue.get() #get msg
-                
                 self.expected_arq_id = self.pkt_cnt_arq #store it for re-use
-                
-                self.tx_arq(self.arq_pdu_tuple,USER_IO_PROTOCOL_ID)
-                
+                self.tx_arq(self.arq_pdu_tuple, USER_IO_PROTOCOL_ID)
                 self.time_of_tx = time.time() # note time for arq timeout recognition
                 self.arq_channel_state = ARQ_CHANNEL_BUSY #remember that the channel is busy
                 self.arq_pkts_txed += 1
                 self.retries = 0
+                self.next_random_backoff_percentage = self.backoff_randomness * random.random()
         else: #if channel is busy, lets check to see if its time to re-transmit
-            if ( time.time() - self.time_of_tx ) > self.timeout: #check for ack timeout
+            if self.exp_backoff:
+                backedoff_timeout = self.timeout * (2**self.retries)
+            else:
+                backedoff_timeout = self.timeout * (self.retries + 1)
+            backedoff_timeout *= (1.0 + self.next_random_backoff_percentage)
+            if (time.time() - self.time_of_tx) > backedoff_timeout: #check for ack timeout
+                #data = self.arq_pdu_tuple[0]
+                dest = self.arq_pdu_tuple[1]['EM_DEST_ADDR']
                 if self.retries == self.max_attempts:            #know when to quit
-                    self.retries = 0 
+                    print "[Addr: %03d ID: %03d] ARQ failed after %d attempts" % (dest, self.expected_arq_id, self.retries)
+                    self.retries = 0
                     self.arq_channel_state = ARQ_CHANNEL_IDLE
                     self.failed_arq += 1
                     self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 255   #start on next pkt
-                    print 'pkt failed arq'
-                else:    
-                    self.tx_arq(self.arq_pdu_tuple,USER_IO_PROTOCOL_ID)
-                    self.time_of_tx = time.time()
-                    self.arq_retxed += 1
+                    if self.expire_on_arq_failure:
+                        if dest in self.nodes.keys():
+                            node = self.nodes[dest]
+                            node.expire()
+                            print "Expired node %03d after ARQ retry failure" % (dest)
+                        else:
+                            print "ARQ retry failed to destination not in node map: %03d" % (dest)
+                else:
                     self.retries += 1
-                    print "Retry"
-                    #TODO: implement exponential back-off
+                    time_now = time.time()
+                    print "[Addr: %03d ID: %03d] ARQ timed out after %.3f s - retry #%d" % (dest, self.expected_arq_id, (time_now - self.time_of_tx), self.retries)
+                    self.tx_arq(self.arq_pdu_tuple, USER_IO_PROTOCOL_ID)
+                    self.time_of_tx = time_now
+                    self.next_random_backoff_percentage = self.backoff_randomness * random.random()
+                    self.arq_retxed += 1

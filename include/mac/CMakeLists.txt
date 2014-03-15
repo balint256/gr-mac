@@ -22,5 +22,6 @@
 ########################################################################
 install(FILES
     api.h
-    square_ff.h DESTINATION include/mac
+    burst_tagger.h
+	DESTINATION include/mac
 )

@@ -26,7 +26,8 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 list(APPEND mac_sources
-    square_ff_impl.cc
+#	square_ff_impl.cc
+	burst_tagger_impl.cc
 )
 
 add_library(gnuradio-mac SHARED ${mac_sources})

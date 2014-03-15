@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<block>
+  <name>Virtual Channel Decoder</name>
+  <key>mac_virtual_channel_decoder</key>
+  <category>gr-mac</category>
+  <import>import mac</import>
+  <make>mac.virtual_channel_decoder($channel_count, $chan_map)</make>
+
+	<param>
+        <name>Channel count</name>
+        <key>channel_count</key>
+		<value>1</value>
+        <type>raw</type>
+    </param>
+	<param>
+        <name>Channel map</name>
+        <key>chan_map</key>
+		<value>[]</value>
+        <type>raw</type>
+    </param>
+
+	<sink>
+		<name>in</name>
+		<type>message</type>
+	</sink>
+	<source>
+		<name>out</name>
+		<type>message</type>
+		<nports>$channel_count</nports>
+	</source>
+
+	<doc>Channel count can be length of Channel map + 1 (extra port will be all channel IDs that aren't in the Channel map).
+Channel map will be truncated if Channel count is less than the size of the map.</doc>
+</block>
+

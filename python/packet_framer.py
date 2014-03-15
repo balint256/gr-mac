@@ -18,14 +18,13 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 # 
-import numpy
-from gnuradio import gr
+import time, threading, traceback
+import Queue
 from math import pi
-import pmt
+from gnuradio import gr
 from gnuradio.digital import packet_utils
 import gnuradio.digital as gr_digital
-import Queue
-import time
+import pmt
 
 # /////////////////////////////////////////////////////////////////////////////
 #                   mod/demod with packets as i/o
@@ -37,84 +36,83 @@ class packet_framer(gr.basic_block):
     Non-blob messages will be ignored.
     The output is a byte stream for the modulator
     """
-
     def __init__(
         self,
-        samples_per_symbol,
-        bits_per_symbol,
+        #samples_per_symbol,
+        #bits_per_symbol,
         access_code=None,
-        use_whitener_offset=False
+        whitener_offset=0,
+        rotate_whitener_offset=False,
+        whiten=True,
+        preamble='',
+        postamble=''
     ):
-        gr.basic_block.__init__(self,
-            name="simple_mac",
-            in_sig=None,
-            out_sig=[numpy.uint8])
         """
         Create a new packet framer.
         @param access_code: AKA sync vector
         @type access_code: string of 1's and 0's between 1 and 64 long
         @param use_whitener_offset: If true, start of whitener XOR string is incremented each packet
         """
-
-        self._bits_per_symbol = bits_per_symbol
-        self._samples_per_symbol = samples_per_symbol
-
-
-
-        self._use_whitener_offset = use_whitener_offset
-        self._whitener_offset = 0
+        gr.basic_block.__init__(
+            self,
+            name="packet_framer",
+            in_sig=None,
+            out_sig=None)
+        
+        self.message_port_register_out(pmt.intern('out'))
+        self.message_port_register_in(pmt.intern('in'))
+        self.set_msg_handler(pmt.intern('in'), self.packetise)
         
         if not access_code:
             access_code = packet_utils.default_access_code
         if not packet_utils.is_1_0_string(access_code):
             raise ValueError, "Invalid access_code %r. Must be string of 1's and 0's" % (access_code,)
-        self._access_code = access_code
-        self._pkt = []
-        self.more_frame_cnt = 0
-        self.keep = False
-        self.message_port_register_in(pmt.intern('in'))
 
-    def general_work(self, input_items, output_items):
-        #while not len(self._pkt):
+        #self._bits_per_symbol = bits_per_symbol
+        #self._samples_per_symbol = samples_per_symbol
+        self.rotate_whitener_offset = rotate_whitener_offset
+        self.whitener_offset = whitener_offset
+        self.whiten = whiten
+        self.access_code = access_code
+        self.preamble = preamble
+        self.postamble = postamble
+    
+    def packetise(self, msg):
+        data = pmt.cdr(msg)
+        meta = pmt.car(msg)
+        if not pmt.is_u8vector(data):
+            #raise NameError("Data is no u8 vector")
+            return "Message data is not u8vector"
         
-        msg = self.pop_msg_queue()
-        #print msg
-        #self.consume(0)
-        return 0
+        buf = pmt.u8vector_elements(data)
+        buf_str = "".join(map(chr, buf))
         
-        '''
-        if not pmt.pmt_is_blob(msg.value): 
-            self.tx_time,data,self.more_frame_cnt = pmt.to_python(msg.value)
-            self.has_tx_time = True
-            #print data
-            #print tx_time
-            #print data.tostring()
-        else:
-            data = pmt.pmt_blob_data(msg.value)
-            #print data
-            self.has_tx_time = False
+        # FIXME: Max: 4096-header-crc
         
-            
-        pkt = packet_utils.make_packet(
-            data.tostring(),
-            self._samples_per_symbol,
-            self._bits_per_symbol,
-            self._access_code,
-            False, #pad_for_usrp,
-            self._whitener_offset,
+        meta_dict = pmt.to_python(meta)
+        if not (type(meta_dict) is dict):
+            meta_dict = {}
+        
+        pkt = ""
+        pkt += self.preamble
+        pkt += packet_utils.make_packet(
+            buf_str,
+            0,#self._samples_per_symbol,
+            0,#self._bits_per_symbol,
+            #preamble=<default>
+            access_code=self.access_code,
+            pad_for_usrp=False,#pad_for_usrp,
+            whitener_offset=self.whitener_offset,
+            whitening=self.whiten
             )
-        pkt += "".join(map(chr, [0x55] * 64))
-        self._pkt = numpy.fromstring(pkt, numpy.uint8)
-        if self._use_whitener_offset:
-            self._whitener_offset = (self._whitener_offset + 1) % 16
-
-        #shouldn't really need to send start of burst
-        #only need to do sob if looking for timed transactions
-
-        num_items = min(len(self._pkt), len(output_items[0]))
-        output_items[0][:num_items] = self._pkt[:num_items]
-        self._pkt = self._pkt[num_items:] #residue for next work()
-        
+        pkt += self.postamble
+        pkt = map(ord, list(pkt))
+        if self.rotate_whitener_offset:
+            self.whitener_offset = (self.whitener_offset + 1) % 16
+        meta = pmt.to_pmt(meta_dict)
+        data = pmt.init_u8vector(len(pkt), pkt)
+        self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
+        '''
         if len(self._pkt) == 0 :
             item_index = num_items #which output item gets the tag?
             offset = self.nitems_written(0) + item_index
@@ -130,11 +128,79 @@ class packet_framer(gr.basic_block):
                 self.add_item_tag(0, offset - 1, key, pmt.PMT_T, source)
             else:
                 self.more_frame_cnt -= 1
-
         '''
-        #self.consume(num_items)
-        #return 0
-'''        
+
+
+class msg_to_pdu_thread(threading.Thread):
+    def __init__(self, msgq, post_fn, **kwds):
+        threading.Thread.__init__(self, **kwds)
+        self.setDaemon(True)
+        self.msgq = msgq
+        self.keep_running = True
+        self.stop_event = threading.Event()
+        self.post_fn = post_fn
+    def start(self):
+        #print "Starting..."
+        threading.Thread.start(self)
+    def stop(self):
+        #print "Stopping..."
+        self.keep_running = False
+        msg = gr.message()  # Empty message to signal end
+        self.msgq.insert_tail(msg)
+        self.stop_event.wait()
+        #print "Stopped"
+    #def __del__(self):
+    #    print "DTOR"
+    def run(self):
+        if self.msgq:
+            while self.keep_running:
+                msg = self.msgq.delete_head()
+                if self.keep_running == False:
+                    break
+                try:
+                    msg_str = msg.to_string()
+                    if len(msg_str) == 0:
+                        continue
+                    if self.post_fn:
+                        self.post_fn(msg_str, msg.type(), msg.arg1(), msg.arg2())
+                except Exception, e:
+                    print e
+                    traceback.print_exc()
+        self.stop_event.set()
+
+
+class packet_to_pdu(gr.basic_block):
+    def __init__(self, msgq, dewhiten=True, output_invalid=False):
+        gr.basic_block.__init__(self, name="packet_to_pdu", in_sig=None, out_sig=None)
+        self.message_port_register_out(pmt.intern('pdu'))
+        self.msgq = msgq
+        self.dewhiten = dewhiten
+        self.output_invalid = output_invalid
+        self.thread = None
+        self.start()
+    def post_data(self, data, type=None, arg1=None, arg2=None):
+        ok, payload = packet_utils.unmake_packet(data, int(arg1), self.dewhiten)
+        if not ok:
+            print "Packet of length %d failed CRC" % (len(data))    # Max len is 4095
+            if not self.output_invalid:
+                return
+        payload = map(ord, list(payload))
+        buf = pmt.init_u8vector(len(payload), payload)
+        meta_dict = {'OK': ok}
+        meta = pmt.to_pmt(meta_dict)
+        self.message_port_pub(pmt.intern('pdu'), pmt.cons(meta, buf))
+    def start(self):
+        if self.thread is None:
+            self.thread = msg_to_pdu_thread(self.msgq, self.post_data)
+            self.thread.start()
+    def stop(self):
+        if self.thread:
+            self.thread.stop()
+            self.thread = None
+    def __del__(self):
+        self.stop()
+
+
 class packet_deframer(gr.hier_block2):
     """
     Hierarchical block for demodulating and deframing packets.
@@ -142,43 +208,43 @@ class packet_deframer(gr.hier_block2):
     The input is a byte stream from the demodulator.
     The output is a pmt message blob.
     """
-
-    def __init__(self, access_code=None, threshold=-1):
+    def __init__(
+        self,
+        msgq,
+        access_code=None,
+        threshold=0
+        ):
         """
         Create a new packet deframer.
         @param access_code: AKA sync vector
         @type access_code: string of 1's and 0's
-        @param threshold: detect access_code with up to threshold bits wrong (-1 -> use default)
+        @param threshold: detect access_code with up to threshold bits wrong
         @type threshold: int
         """
-
         gr.hier_block2.__init__(
             self,
-            "demod_pkts2",
+            "packet_deframer",
             gr.io_signature(1, 1, 1),
-            gr.io_signature(1, 1, 1),
+            gr.io_signature(0, 0, 0)
         )
-
+        
         if not access_code:
             access_code = packet_utils.default_access_code
         if not packet_utils.is_1_0_string(access_code):
             raise ValueError, "Invalid access_code %r. Must be string of 1's and 0's" % (access_code,)
-
-        if threshold == -1:
-            threshold = 12              # FIXME raise exception
-
-        msgq = gr.msg_queue(4)          # holds packets from the PHY
+        
+        if threshold < 0:
+            raise ValueError, "Invalid threshold value %d" % (threshold)
+        
+        #default_access_code = conv_packed_binary_string_to_1_0_string('\xAC\xDD\xA4\xE2\xF2\x8C\x20\xFC')
+        #default_preamble = conv_packed_binary_string_to_1_0_string('\xA4\xF2')
+        
+        self.msgq = msgq
         self.correlator = gr_digital.correlate_access_code_bb(access_code, threshold)
-
-        self.framer_sink = gr.framer_sink_1(msgq)
+        self.framer_sink = gr_digital.framer_sink_1(self.msgq)
         self.connect(self, self.correlator, self.framer_sink)
-        self._queue_to_blob = _queue_to_blob(msgq)
-        self.connect(self._queue_to_blob, self)
 
-
-
-
-
+'''
 class _queue_to_blob(gr.block):
     """
     Helper for the deframer, reads queue, unpacks packets, posts.
@@ -209,5 +275,4 @@ class _queue_to_blob(gr.block):
                 self.post_msg(0, pmt.pmt_string_to_symbol("ok"), blob)
             else:
                 a = 0
-
 '''

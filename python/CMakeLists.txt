@@ -33,7 +33,9 @@ GR_PYTHON_INSTALL(
     __init__.py
     simple_mac.py
     virtual_channel_encoder.py
+    virtual_channel_decoder.py
     packet_framer.py
+    tracker_802_3.py
     simple_mac.py DESTINATION ${GR_PYTHON_DIR}/mac
 )
 
@@ -44,3 +46,4 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-mac)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
+

@@ -4,32 +4,106 @@
   <key>mac_virtual_channel_encoder</key>
   <category>gr-mac</category>
   <import>import mac</import>
-  <make>mac.virtual_channel_encoder($channel,$arq)</make>
+  <make>mac.virtual_channel_encoder($dest_addr, $arq,#slurp
+#if $mtu()
+mtu=$mtu,
+#end if
+#if $chan_id() &gt; -1
+chan_id=$chan_id,
+#end if
+prepend_dummy=$prepend_dummy,
+#if $chan_tracker()
+chan_tracker=self.$(chan_tracker()),
+#end if
+)</make>
     <param>
-        <name>Dest. Address</name>
-        <key>channel</key>
+        <name>Dest addr</name>
+        <key>dest_addr</key>
+		<value>-1</value>
         <type>int</type>
+		<option>
+			<name>Broadcast</name>
+			<key>-1</key>
+		</option>
     </param>
     <param>
         <name>ARQ</name>
         <key>arq</key>
-        <type>int</type>
+        <type>enum</type>
         <option>
-			<name>ARQ_FALSE</name>
-			<key>0</key>
+			<name>On</name>
+			<key>True</key>
 		</option>
         <option>
-			<name>ARQ_TRUE</name>
+			<name>Off</name>
+			<key>False</key>
+		</option>
+    </param>
+	<param>
+        <name>MTU</name>
+        <key>mtu</key>
+		<value>0</value>
+        <type>int</type>
+		<hide>#if $mtu &gt; 0 then 'none' else 'part'#</hide>
+		<option>
+			<name>Don't fragment</name>
+			<key>0</key>
+		</option>
+    </param>
+
+	<param>
+        <name>L3 chan ID</name>
+        <key>chan_id</key>
+		<value>-1</value>
+        <type>int</type>
+		<option>
+			<name>Disabled</name>
+			<key>-1</key>
+		</option>
+		<option>
+			<name>User</name>
+			<key>0</key>
+		</option>
+		<option>
+			<name>802.3 Ethernet</name>
 			<key>1</key>
 		</option>
     </param>
 
-  <sink>
-    <name>in</name>
-    <type>message</type>
-  </sink>
-  <source>
-    <name>out</name>
-    <type>message</type>
-  </source>
+	<param>
+        <name>Chan tracker</name>
+        <key>chan_tracker</key>
+		<value></value>
+        <type>string</type>
+		<hide>#if $chan_tracker() then 'none' else 'part'#</hide>
+    </param>
+
+	<param>
+        <name>Prepend dummy</name>
+        <key>prepend_dummy</key>
+		<value>False</value>
+        <type>enum</type>
+		<hide>#if str($prepend_dummy()) == 'True' then 'none' else 'part'#</hide>
+        <option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+        <option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+    </param>
+
+	<sink>
+		<name>in</name>
+		<type>message</type>
+	</sink>
+	<source>
+		<name>out</name>
+		<type>message</type>
+	</source>
+
+	<doc>MTU of 0 means packets will not be fragmented.
+Channel ID should be considered part of layer 3 (not the MAC).</doc>
 </block>
+

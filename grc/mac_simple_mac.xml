@@ -1,24 +1,117 @@
 <?xml version="1.0"?>
 <block>
-  <name>Simple MAC</name>
-  <key>simple_mac</key>
-  <category>gr-mac</category>
-  <import>import mac</import>
-  <make>mac.simple_mac($addr,$timeout,$maximum_attempts)</make>
+	<name>Simple MAC</name>
+	<key>simple_mac</key>
+	<category>gr-mac</category>
+	<import>import mac</import>
+	<make>mac.simple_mac(
+$addr,
+$timeout,
+$maximum_attempts,
+$broadcast_interval,
+$exp_backoff,
+$backoff_randomness,
+node_expiry_delay=$node_expiry_delay,
+expire_on_arq_failure=$expire_on_arq_failure,
+only_send_if_alive=$only_send_if_alive,
+prepend_dummy=$prepend_dummy,
+)</make>
+
     <param>
-        <name>Address(0-255)</name>
+        <name>Local addr</name>
         <key>addr</key>
         <type>int</type>
     </param>
     <param>
-        <name>Maximum ARQ Attempts(n)</name>
+        <name>Max ARQ attempts</name>
         <key>maximum_attempts</key>
+		<value>10</value>
         <type>int</type>
     </param>
     <param>
-        <name>ARQ Timeout(s)</name>
+        <name>ARQ timeout</name>
         <key>timeout</key>
+		<value>0.01</value>
         <type>real</type>
+    </param>
+	<param>
+        <name>Broadcast interval</name>
+        <key>broadcast_interval</key>
+		<value>2.0</value>
+        <type>real</type>
+    </param>
+	<param>
+		<name>Backoff</name>
+		<key>exp_backoff</key>
+		<value>True</value>
+		<type>enum</type>
+		<!--<hide>#if str($exp_backoff()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Exponential</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Linear</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+        <name>Backoff randomness</name>
+        <key>backoff_randomness</key>
+		<value>0.05</value>
+        <type>real</type>
+    </param>
+	<param>
+        <name>Node expiry delay</name>
+        <key>node_expiry_delay</key>
+		<value>10.0</value>
+        <type>real</type>
+    </param>
+	<param>
+		<name>Expire on ARQ failure</name>
+		<key>expire_on_arq_failure</key>
+		<value>False</value>
+		<type>enum</type>
+		<!--<hide>#if str($exp_backoff()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+		<name>Only send if alive</name>
+		<key>only_send_if_alive</key>
+		<value>False</value>
+		<type>enum</type>
+		<!--<hide>#if str($exp_backoff()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+
+	<param>
+        <name>Prepend dummy</name>
+        <key>prepend_dummy</key>
+		<value>False</value>
+        <type>enum</type>
+		<hide>#if str($prepend_dummy()) == 'True' then 'none' else 'part'#</hide>
+        <option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+        <option>
+			<name>No</name>
+			<key>False</key>
+		</option>
     </param>
 
   <sink>
@@ -30,7 +123,12 @@
     <name>from_app</name>
     <type>message</type>
     <optional>1</optional>
-  </sink>  
+  </sink>
+  <sink>
+    <name>from_app_arq</name>
+    <type>message</type>
+    <optional>1</optional>
+  </sink>
   <sink>
     <name>ctrl_in</name>
     <type>message</type>
@@ -52,4 +150,9 @@
     <type>message</type>
     <optional>1</optional>
   </source>
+
+	<doc>Local addr can be 0-254
+ARQ timeout and  Node expiry delay in seconds
+Backoff randomness adds to current backoff delay *up to* given percentage
+	</doc>	
 </block>

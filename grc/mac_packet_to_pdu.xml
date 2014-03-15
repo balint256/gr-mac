@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##Packet Decoder
+###################################################
+ -->
+<block>
+    <name>Packet to PDU</name>
+    <key>mac_packet_to_pdu</key>
+    <import>import mac</import>
+    <make>mac.packet_to_pdu(msgq=$(id)_msgq_in, dewhiten=$dewhiten, output_invalid=$output_invalid)</make>
+    <param>
+		<name>Dewhiten</name>
+		<key>dewhiten</key>
+		<value>True</value>
+		<type>enum</type>
+		<!--<hide>#if str($dewhiten()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+		<name>Output invalid</name>
+		<key>output_invalid</key>
+		<value>False</value>
+		<type>enum</type>
+		<!--<hide>#if str($dewhiten()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+    <sink>
+        <name>msg</name>
+        <type>msg</type>
+    </sink>
+    <source>
+        <name>pdu</name>
+        <type>message</type>
+    </source>
+    <doc>
+Access Code: string of 1's and 0's, leave blank for automatic.
+
+Threshold: -1 for automatic.
+    </doc>
+</block>

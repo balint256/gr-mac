@@ -5,15 +5,20 @@
 ###################################################
  -->
 <block>
-    <name>gr-mac: Packet Framer</name>
-    <key>precog_packet_framer</key>
+    <name>Packet Framer</name>
+    <key>mac_packet_framer</key>
     <import>import mac</import>
     <make>mac.packet_framer(
-    samples_per_symbol=$samples_per_symbol,
-    bits_per_symbol=$bits_per_symbol,
+##    samples_per_symbol=$samples_per_symbol,
+##    bits_per_symbol=$bits_per_symbol,
     access_code=$access_code,
+	whitener_offset=$whitener_offset,
+	rotate_whitener_offset=$whitener_offset,
+	whiten=$whiten,
+	preamble=$preamble,
+	postamble=$postamble,
 )</make>
-    <param>
+    <!--<param>
         <name>Samples/Symbol</name>
         <key>samples_per_symbol</key>
         <type>int</type>
@@ -22,12 +27,60 @@
         <name>Bits/Symbol</name>
         <key>bits_per_symbol</key>
         <type>int</type>
-    </param>
+    </param>-->
     <param>
-        <name>Access Code</name>
+        <name>Access code</name>
         <key>access_code</key>
         <value></value>
         <type>string</type>
+    </param>
+	<param>
+        <name>Whitener offset</name>
+        <key>whitener_offset</key>
+        <value>0</value>
+        <type>int</type>
+    </param>
+	<param>
+		<name>Whiten</name>
+		<key>whiten</key>
+		<value>True</value>
+		<type>enum</type>
+		<!--<hide>#if str($dewhiten()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+		<name>Rotate Whitener</name>
+		<key>rotate_whitener_offset</key>
+		<value>False</value>
+		<type>enum</type>
+		<!--<hide>#if str($dewhiten()) == 'True' then 'none' else 'part'#</hide>-->
+		<option>
+			<name>Yes</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>No</name>
+			<key>False</key>
+		</option>
+	</param>
+	<param>
+        <name>Preamble</name>
+        <key>preamble</key>
+        <value>''</value>
+        <type>raw</type>
+    </param>
+	<param>
+        <name>Postamble</name>
+        <key>postamble</key>
+        <value>''</value>
+        <type>raw</type>
     </param>
     <sink>
         <name>in</name>
@@ -35,7 +88,7 @@
     </sink>
     <source>
         <name>out</name>
-        <type>byte</type>
+        <type>message</type>
     </source>
     <doc>
 Packet encoder block, for use with the gnuradio modulator blocks: gmsk, dpsk, qam.
