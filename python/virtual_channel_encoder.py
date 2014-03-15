@@ -116,8 +116,10 @@ class virtual_channel_encoder(gr.basic_block):
             if self.chan_id > -1:
                 buf = [self.chan_id] + buf
                 data = pmt.init_u8vector(len(buf), buf)
-            #self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
-            self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
+            if hasattr(self, 'post_msg'):
+                self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
+            else:
+                self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
         else:
             i = 0
             while len(buf) > 0:
@@ -126,8 +128,10 @@ class virtual_channel_encoder(gr.basic_block):
                 if self.chan_id > -1:
                     data = [self.chan_id] + data
                 data = pmt.init_u8vector(len(data), data)
-                #self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
-                self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
+                if hasattr(self, 'post_msg'):
+                    self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
+                else:
+                    self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
                 buf = buf[min(self.mtu,len(buf)):]
                 i += 1
         
