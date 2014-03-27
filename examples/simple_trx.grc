@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Sat Mar 15 09:38:09 2014</timestamp>
+  <timestamp>Mon Mar 24 19:03:28 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1156,152 +1156,6 @@
     </param>
   </block>
   <block>
-    <key>ofdm_radio</key>
-    <param>
-      <key>id</key>
-      <value>ofdm_radio_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>rx_freq</key>
-      <value>rx_freq</value>
-    </param>
-    <param>
-      <key>rx_gain</key>
-      <value>user_rx_gain</value>
-    </param>
-    <param>
-      <key>rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>args</key>
-      <value>args</value>
-    </param>
-    <param>
-      <key>tx_freq</key>
-      <value>tx_freq</value>
-    </param>
-    <param>
-      <key>tx_gain</key>
-      <value>user_tx_gain</value>
-    </param>
-    <param>
-      <key>tx_lo_offset</key>
-      <value>tx_lo_offset</value>
-    </param>
-    <param>
-      <key>rx_lo_offset</key>
-      <value>rx_lo_offset</value>
-    </param>
-    <param>
-      <key>rx_ant</key>
-      <value>rx_antenna</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(624, 5)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>gmsk_radio</key>
-    <param>
-      <key>id</key>
-      <value>gmsk_radio_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>args</key>
-      <value>args</value>
-    </param>
-    <param>
-      <key>tx_gain</key>
-      <value>user_tx_gain</value>
-    </param>
-    <param>
-      <key>tx_freq</key>
-      <value>tx_freq</value>
-    </param>
-    <param>
-      <key>rx_ant</key>
-      <value>rx_antenna</value>
-    </param>
-    <param>
-      <key>rx_freq</key>
-      <value>rx_freq</value>
-    </param>
-    <param>
-      <key>rx_gain</key>
-      <value>user_rx_gain</value>
-    </param>
-    <param>
-      <key>ampl</key>
-      <value>ampl</value>
-    </param>
-    <param>
-      <key>rx_lo_offset</key>
-      <value>rx_lo_offset</value>
-    </param>
-    <param>
-      <key>tx_lo_offset</key>
-      <value>tx_lo_offset</value>
-    </param>
-    <param>
-      <key>samps_per_sym</key>
-      <value>samps_per_sym</value>
-    </param>
-    <param>
-      <key>access_code_threshold</key>
-      <value>0 + 12 + 4*0</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(624, 160)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>id</key>
@@ -1851,77 +1705,6 @@
     </param>
   </block>
   <block>
-    <key>simple_mac</key>
-    <param>
-      <key>id</key>
-      <value>simple_mac_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>addr</key>
-      <value>radio_addr</value>
-    </param>
-    <param>
-      <key>maximum_attempts</key>
-      <value>max_arq_attempts</value>
-    </param>
-    <param>
-      <key>timeout</key>
-      <value>arq_timeout</value>
-    </param>
-    <param>
-      <key>broadcast_interval</key>
-      <value>2.0</value>
-    </param>
-    <param>
-      <key>exp_backoff</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>backoff_randomness</key>
-      <value>0.05</value>
-    </param>
-    <param>
-      <key>node_expiry_delay</key>
-      <value>10.0</value>
-    </param>
-    <param>
-      <key>expire_on_arq_failure</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>only_send_if_alive</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>prepend_dummy</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(820, 372)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>mac_802_3_tracker</key>
     <param>
       <key>id</key>
@@ -2104,6 +1887,223 @@
       <value>180</value>
     </param>
   </block>
+  <block>
+    <key>simple_mac</key>
+    <param>
+      <key>id</key>
+      <value>simple_mac_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>addr</key>
+      <value>radio_addr</value>
+    </param>
+    <param>
+      <key>maximum_attempts</key>
+      <value>max_arq_attempts</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>arq_timeout</value>
+    </param>
+    <param>
+      <key>broadcast_interval</key>
+      <value>2.0</value>
+    </param>
+    <param>
+      <key>exp_backoff</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>backoff_randomness</key>
+      <value>0.05</value>
+    </param>
+    <param>
+      <key>node_expiry_delay</key>
+      <value>10.0</value>
+    </param>
+    <param>
+      <key>expire_on_arq_failure</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>only_send_if_alive</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>prepend_dummy</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(820, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>ofdm_radio</key>
+    <param>
+      <key>id</key>
+      <value>ofdm_radio_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>rx_freq</key>
+      <value>rx_freq</value>
+    </param>
+    <param>
+      <key>rx_gain</key>
+      <value>user_rx_gain</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>args</key>
+      <value>args</value>
+    </param>
+    <param>
+      <key>tx_freq</key>
+      <value>tx_freq</value>
+    </param>
+    <param>
+      <key>tx_gain</key>
+      <value>user_tx_gain</value>
+    </param>
+    <param>
+      <key>tx_lo_offset</key>
+      <value>tx_lo_offset</value>
+    </param>
+    <param>
+      <key>rx_lo_offset</key>
+      <value>rx_lo_offset</value>
+    </param>
+    <param>
+      <key>rx_ant</key>
+      <value>rx_antenna</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 5)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>gmsk_radio</key>
+    <param>
+      <key>id</key>
+      <value>gmsk_radio_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>args</key>
+      <value>args</value>
+    </param>
+    <param>
+      <key>tx_gain</key>
+      <value>user_tx_gain</value>
+    </param>
+    <param>
+      <key>tx_freq</key>
+      <value>tx_freq</value>
+    </param>
+    <param>
+      <key>rx_ant</key>
+      <value>rx_antenna</value>
+    </param>
+    <param>
+      <key>rx_freq</key>
+      <value>rx_freq</value>
+    </param>
+    <param>
+      <key>rx_gain</key>
+      <value>user_rx_gain</value>
+    </param>
+    <param>
+      <key>ampl</key>
+      <value>ampl</value>
+    </param>
+    <param>
+      <key>rx_lo_offset</key>
+      <value>rx_lo_offset</value>
+    </param>
+    <param>
+      <key>tx_lo_offset</key>
+      <value>tx_lo_offset</value>
+    </param>
+    <param>
+      <key>samps_per_sym</key>
+      <value>samps_per_sym</value>
+    </param>
+    <param>
+      <key>access_code_threshold</key>
+      <value>0 + 12 + 4*0</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(624, 160)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blocks_message_strobe_0</source_block_id>
     <sink_block_id>simple_mac_1</sink_block_id>
@@ -2214,12 +2214,6 @@
   </connection>
   <connection>
     <source_block_id>ofdm_radio_0</source_block_id>
-    <sink_block_id>blocks_tag_debug_0_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>ofdm_radio_0</source_block_id>
     <sink_block_id>simple_mac_1</sink_block_id>
     <source_key>msg_out</source_key>
     <sink_key>from_radio</sink_key>
@@ -2295,5 +2289,11 @@
     <sink_block_id>blocks_message_debug_0_0_1</sink_block_id>
     <source_key>out2</source_key>
     <sink_key>print</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>ofdm_radio_0</source_block_id>
+    <sink_block_id>blocks_tag_debug_0_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
   </connection>
 </flow_graph>

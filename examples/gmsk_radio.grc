@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Sat Mar 15 09:11:57 2014</timestamp>
+  <timestamp>Tue Mar 25 17:44:08 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1550,61 +1550,6 @@
     </param>
   </block>
   <block>
-    <key>mac_packet_framer</key>
-    <param>
-      <key>id</key>
-      <value>mac_packet_framer_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>access_code</key>
-      <value></value>
-    </param>
-    <param>
-      <key>whitener_offset</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>whiten</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>rotate_whitener_offset</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>''.join(['\x55']*((256*1)/8/samps_per_sym))</value>
-    </param>
-    <param>
-      <key>postamble</key>
-      <value>''.join(['\x00']*(16/8/samps_per_sym)*0)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(518, 234)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>foo_packet_pad</key>
     <param>
       <key>id</key>
@@ -2409,53 +2354,6 @@
     </param>
   </block>
   <block>
-    <key>mac_burst_tagger</key>
-    <param>
-      <key>id</key>
-      <value>mac_burst_tagger_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>tag_name</key>
-      <value>'length'</value>
-    </param>
-    <param>
-      <key>mult</key>
-      <value>32</value>
-    </param>
-    <param>
-      <key>pad_front</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>pad_rear</key>
-      <value>16</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(605, 452)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>foo_burst_tagger</key>
     <param>
       <key>id</key>
@@ -2488,6 +2386,108 @@
     <param>
       <key>_coordinate</key>
       <value>(605, 390)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>mac_burst_tagger</key>
+    <param>
+      <key>id</key>
+      <value>mac_burst_tagger_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>tag_name</key>
+      <value>'length'</value>
+    </param>
+    <param>
+      <key>mult</key>
+      <value>samps_per_sym*8</value>
+    </param>
+    <param>
+      <key>pad_front</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>pad_rear</key>
+      <value>32</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(605, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>mac_packet_framer</key>
+    <param>
+      <key>id</key>
+      <value>mac_packet_framer_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>access_code</key>
+      <value></value>
+    </param>
+    <param>
+      <key>whitener_offset</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>whiten</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>rotate_whitener_offset</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>''.join(['\x55']*((256*1)/8/samps_per_sym))</value>
+    </param>
+    <param>
+      <key>postamble</key>
+      <value>''.join(['\x00']*(16/8/samps_per_sym)*0)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(518, 234)</value>
     </param>
     <param>
       <key>_rotation</key>

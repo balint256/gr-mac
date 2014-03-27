@@ -153,7 +153,7 @@ class simple_mac(gr.basic_block):
         #if True:
             print "Simple MAC ARQ in non-blocking mode"
             self.message_port_register_in(pmt.intern('from_app_arq'))
-            self.set_msg_handler(pmt.intern('from_app'), self.app_rx_arq)
+            self.set_msg_handler(pmt.intern('from_app_arq'), self.app_rx_arq)
         
         #message i/o for ctrl interface
         self.message_port_register_out(pmt.intern('ctrl_out'))
