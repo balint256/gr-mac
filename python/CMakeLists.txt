@@ -36,7 +36,9 @@ GR_PYTHON_INSTALL(
     virtual_channel_decoder.py
     packet_framer.py
     tracker_802_3.py
-    simple_mac.py DESTINATION ${GR_PYTHON_DIR}/mac
+    simple_mac.py
+    constants.py
+    DESTINATION ${GR_PYTHON_DIR}/mac
 )
 
 ########################################################################

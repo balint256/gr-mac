@@ -181,12 +181,12 @@ class packet_to_pdu(gr.basic_block):
     def post_data(self, data, type=None, arg1=None, arg2=None):
         ok, payload = packet_utils.unmake_packet(data, int(arg1), self.dewhiten)
         if not ok:
-            print "Packet of length %d failed CRC" % (len(data))    # Max len is 4095
+            #print "Packet of length %d failed CRC" % (len(data))    # Max len is 4095
             if not self.output_invalid:
                 return
         payload = map(ord, list(payload))
         buf = pmt.init_u8vector(len(payload), payload)
-        meta_dict = {'OK': ok}
+        meta_dict = {'CRC_OK': ok}
         meta = pmt.to_pmt(meta_dict)
         self.message_port_pub(pmt.intern('pdu'), pmt.cons(meta, buf))
     def start(self):

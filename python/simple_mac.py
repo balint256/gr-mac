@@ -196,7 +196,7 @@ class simple_mac(gr.basic_block):
     #transmit data through non-arq path    
     def tx_no_arq(self, pdu_tuple, protocol_id):
         self.send_pkt_radio(pdu_tuple, self.pkt_cnt_no_arq, protocol_id, ARQ_NO_REQ)
-        self.pkt_cnt_no_arq = ( self.pkt_cnt_no_arq + 1 ) % 255
+        self.pkt_cnt_no_arq = ( self.pkt_cnt_no_arq + 1 ) % 256
     
     
     #transmit data - msg is numpy array
@@ -276,14 +276,14 @@ class simple_mac(gr.basic_block):
     
     
     def radio_rx(self, msg):
-        try:            
+        try:
             meta = pmt.car(msg)
             data =  pmt.cdr(msg)
         except:
             #raise NameError("mac - input not a PDU")
             print "Message is not a PDU"
             return
-            
+        
         if pmt.is_u8vector(data):
             data = pmt.u8vector_elements(data)
         else:
@@ -295,52 +295,74 @@ class simple_mac(gr.basic_block):
         if not (type(meta_dict) is dict):
             meta_dict = {}
         
+        crc_ok = True
+        if 'CRC_OK' in meta_dict.keys():
+            crc_ok = meta_dict['CRC_OK']
+        
         if len(data) >= PKT_INDEX_MAX: #check for weird header only stuff
-            meta_dict['EM_SRC_ID'] = data[PKT_INDEX_SRC]
+            src_addr = data[PKT_INDEX_SRC]
+            meta_dict['EM_SRC_ID'] = src_addr
             
-            if not data[PKT_INDEX_SRC] == self.addr:
-                #print "Heard node", data[PKT_INDEX_SRC]
-                if data[PKT_INDEX_SRC] in self.nodes.keys():
-                    node = self.nodes[data[PKT_INDEX_SRC]]
+            if not src_addr == self.addr:
+                if not crc_ok:
+                    if src_addr in self.nodes.keys() and self.nodes[src_addr].alive:
+                        #print "Packet of length %d from node %d to address %d failed CRC" % (len(data), src_addr, data[PKT_INDEX_DEST])
+                        sys.stderr.write("!")
+                        sys.stderr.flush()
+                    return
+                #print "Heard node", src_addr
+                if src_addr in self.nodes.keys():
+                    node = self.nodes[src_addr]
                 else:
-                    node = Node(data[PKT_INDEX_SRC])
-                    self.nodes[data[PKT_INDEX_SRC]] = node
+                    node = Node(src_addr)
+                    self.nodes[src_addr] = node
                 
                 if node.update(time.time()):
                     print "Node %03d alive" % (node.id)
-            #else:
-            #    print "Heard myself"
+            else:
+                #if crc_ok:
+                #    print "Heard myself"
+                return
             
             discard = False
             
             incoming_protocol_id = data[PKT_INDEX_PROT_ID]
-            if (incoming_protocol_id != DUMMY_PROTOCOL_ID) and ((data[PKT_INDEX_DEST] == self.addr or data[PKT_INDEX_DEST] == BROADCAST_ADDR) and (not data[PKT_INDEX_SRC] == self.addr)):  # for us?
-                #check to see if we must ACK this packet
-                if (data[PKT_INDEX_CTRL] == ARQ_REQ): #TODO, stuff CTRL and Protocol in one field
-                    self.send_ack(data[PKT_INDEX_SRC], data[PKT_INDEX_CNT]) #Then send ACK then
+            control_field = data[PKT_INDEX_CTRL]
+            
+            if not control_field in [ARQ_REQ, ARQ_NO_REQ]:
+                print "Bad control field: %d" % (control_field)
+                return
+            
+            if (incoming_protocol_id != DUMMY_PROTOCOL_ID) and ((data[PKT_INDEX_DEST] == self.addr or data[PKT_INDEX_DEST] == BROADCAST_ADDR) and (not src_addr == self.addr)):  # for us?
+                # check to see if we must ACK this packet
+                if control_field == ARQ_REQ: # TODO: stuff CTRL and Protocol in one field
+                    self.send_ack(data[PKT_INDEX_SRC], data[PKT_INDEX_CNT]) # Then send ACK
                     if not (self.arq_expected_sequence_number == data[PKT_INDEX_CNT]):
                         self.arq_sequence_error_cnt += 1
-                        print "Discarding out-of-sequence data: %03d (expected %03d)" % (data[PKT_INDEX_CNT], self.arq_expected_sequence_number)
+                        print "Discarding out-of-sequence data: %03d (expected: %03d)" % (data[PKT_INDEX_CNT], self.arq_expected_sequence_number)
                         discard = True
-                    self.arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 255
+                    self.arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 256
                 
                 elif incoming_protocol_id != BROADCAST_PROTOCOL_ID:
                     if not (self.no_arq_expected_sequence_number == data[PKT_INDEX_CNT]):
                         self.no_arq_sequence_error_cnt += 1
-                        print "Out-of-sequence data: %03d (expected %03d)" % (data[PKT_INDEX_CNT], self.no_arq_expected_sequence_number)
-                    self.no_arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 255
+                        print "Out-of-sequence data: %03d (expected: %03d, protocol: %d)" % (data[PKT_INDEX_CNT], self.no_arq_expected_sequence_number, incoming_protocol_id)
+                    self.no_arq_expected_sequence_number =  ( data[PKT_INDEX_CNT] + 1 ) % 256
                 
-                #check to see if this is an ACK packet
+                # check to see if this is an ACK packet
                 if incoming_protocol_id == ARQ_PROTOCOL_ID:
-                    if data[5] == self.expected_arq_id:
-                        self.arq_channel_state = ARQ_CHANNEL_IDLE
-                        self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 255
-                        #diff = time.time() - self.time_of_tx
-                        #print "==> ACK took %f sec" % (diff)
+                    if len(data) > PKT_INDEX_MAX:
+                        if data[5] == self.expected_arq_id: # 1st byte into payload
+                            self.arq_channel_state = ARQ_CHANNEL_IDLE
+                            self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 256
+                            #diff = time.time() - self.time_of_tx
+                            #print "==> ACK took %f sec" % (diff)
+                        else:
+                            print "Received out-of-sequence ACK: %03d (expected: %03d)" % (data[5], self.expected_arq_id)
                     else:
-                        print "Received out-of-sequence ACK: %03d (expected %03d)" % (data[5], self.expected_arq_id)
+                        print "ARQ protocol packet too short"
                 
-                #do something with incoming user data
+                # do something with incoming user data
                 elif incoming_protocol_id == USER_IO_PROTOCOL_ID:
                     if not discard:
                         pdu_tuple = (data, meta_dict)
@@ -351,10 +373,10 @@ class simple_mac(gr.basic_block):
                 
                 else:
                     print "Unknown protocol: %d" % (incoming_protocol_id)
-        else:
+        elif crc_ok:
             print "Did not receive enough bytes for a header (only got %d)" % (len(data))
         
-        #self.run_arq_fsm()
+        self.run_arq_fsm()
     
     
     def app_rx(self, msg):
@@ -394,31 +416,34 @@ class simple_mac(gr.basic_block):
     
     def dispatch_app_rx(self, data, meta_dict):
         #double check to make sure correct meta data was in PDU
-        if 'EM_USE_ARQ' in meta_dict.keys() and 'EM_DEST_ADDR' in meta_dict.keys():
-            use_arq = meta_dict['EM_USE_ARQ']
-            dest_addr = meta_dict['EM_DEST_ADDR']
-            
-            if dest_addr == BROADCAST_ADDR and use_arq:
-                print "Not using ARQ for broadcast packet"
-                use_arq = False
-            
-            if dest_addr != BROADCAST_ADDR and self.only_send_if_alive:
-                if not dest_addr in self.nodes.keys():
-                    print "Not sending packet to %03d as it hasn't been seen yet" % (dest_addr)
-                    return
-                elif not self.nodes[dest_addr].alive:
-                    print "Not sending packet to %03d as it isn't alive" % (dest_addr)
-                    return
-            
-            #assign tx path depending on whether PMT_BOOL EM_USE_ARQ is true or false
-            if use_arq and dest_addr != BROADCAST_ADDR:
-                self.queue.put( (data, meta_dict) )
-                self.run_arq_fsm()
-            else:
-                self.tx_no_arq( (data, meta_dict), USER_IO_PROTOCOL_ID)
-        else:
+        if (not 'EM_USE_ARQ' in meta_dict.keys()) or (not 'EM_DEST_ADDR' in meta_dict.keys()):
             #raise NameError("EM_USE_ARQ and/or EM_DEST_ADDR not specified in PDU")
             print "PDU missing MAC metadata"
+            return
+        
+        use_arq = meta_dict['EM_USE_ARQ']
+        dest_addr = meta_dict['EM_DEST_ADDR']
+        
+        if dest_addr == BROADCAST_ADDR and use_arq:
+            #print "Not using ARQ for broadcast packet"
+            sys.stderr.write("*")
+            sys.stderr.flush()
+            use_arq = False
+        
+        if dest_addr != BROADCAST_ADDR and self.only_send_if_alive:
+            if not dest_addr in self.nodes.keys():
+                print "Not sending packet to %03d as it hasn't been seen yet" % (dest_addr)
+                return
+            elif not self.nodes[dest_addr].alive:
+                print "Not sending packet to %03d as it isn't alive" % (dest_addr)
+                return
+        
+        #assign tx path depending on whether PMT_BOOL EM_USE_ARQ is true or false
+        if use_arq and dest_addr != BROADCAST_ADDR:
+            self.queue.put((data, meta_dict))
+            self.run_arq_fsm()
+        else:
+            self.tx_no_arq((data, meta_dict), USER_IO_PROTOCOL_ID)
         
         #self.run_arq_fsm()
     
@@ -433,33 +458,33 @@ class simple_mac(gr.basic_block):
     
     
     def run_arq_fsm(self):
-        #check to see if we have any outgoing messages from arq buffer we should send or pending re-transmissions
+        # check to see if we have any outgoing messages from arq buffer we should send or pending re-transmissions
         if self.arq_channel_state == ARQ_CHANNEL_IDLE: #channel ready for next arq msg
             if not self.queue.empty(): #we have an arq msg to send, so lets send it
                 #print self.queue.qsize()
-                self.arq_pdu_tuple = self.queue.get() #get msg
-                self.expected_arq_id = self.pkt_cnt_arq #store it for re-use
+                self.arq_pdu_tuple = self.queue.get() # get msg
+                self.expected_arq_id = self.pkt_cnt_arq # store it for re-use
                 self.tx_arq(self.arq_pdu_tuple, USER_IO_PROTOCOL_ID)
                 self.time_of_tx = time.time() # note time for arq timeout recognition
-                self.arq_channel_state = ARQ_CHANNEL_BUSY #remember that the channel is busy
+                self.arq_channel_state = ARQ_CHANNEL_BUSY # remember that the channel is busy
                 self.arq_pkts_txed += 1
                 self.retries = 0
                 self.next_random_backoff_percentage = self.backoff_randomness * random.random()
-        else: #if channel is busy, lets check to see if its time to re-transmit
+        else: # if channel is busy, lets check to see if its time to re-transmit
             if self.exp_backoff:
                 backedoff_timeout = self.timeout * (2**self.retries)
             else:
                 backedoff_timeout = self.timeout * (self.retries + 1)
             backedoff_timeout *= (1.0 + self.next_random_backoff_percentage)
-            if (time.time() - self.time_of_tx) > backedoff_timeout: #check for ack timeout
+            if (time.time() - self.time_of_tx) > backedoff_timeout: # check for ack timeout
                 #data = self.arq_pdu_tuple[0]
                 dest = self.arq_pdu_tuple[1]['EM_DEST_ADDR']
-                if self.retries == self.max_attempts:            #know when to quit
+                if self.retries == self.max_attempts:            # know when to quit
                     print "[Addr: %03d ID: %03d] ARQ failed after %d attempts" % (dest, self.expected_arq_id, self.retries)
                     self.retries = 0
                     self.arq_channel_state = ARQ_CHANNEL_IDLE
                     self.failed_arq += 1
-                    self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 255   #start on next pkt
+                    self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 256   # start on next pkt
                     if self.expire_on_arq_failure:
                         if dest in self.nodes.keys():
                             node = self.nodes[dest]

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Mar 25 17:44:08 2014</timestamp>
+  <timestamp>Thu Mar 27 20:34:50 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1187,65 +1187,6 @@
     </param>
   </block>
   <block>
-    <key>digital_gmsk_demod</key>
-    <param>
-      <key>id</key>
-      <value>digital_gmsk_demod_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>samples_per_symbol</key>
-      <value>samps_per_sym</value>
-    </param>
-    <param>
-      <key>gain_mu</key>
-      <value>0.175</value>
-    </param>
-    <param>
-      <key>mu</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>omega_relative_limit</key>
-      <value>0.005</value>
-    </param>
-    <param>
-      <key>freq_error</key>
-      <value>0.0</value>
-    </param>
-    <param>
-      <key>verbose</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>log</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(516, 40)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>id</key>
@@ -1336,45 +1277,6 @@
     <param>
       <key>_coordinate</key>
       <value>(337, 269)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>mac_packet_to_pdu</key>
-    <param>
-      <key>id</key>
-      <value>mac_packet_to_pdu_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>dewhiten</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>output_invalid</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(966, 61)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2412,11 +2314,11 @@
     </param>
     <param>
       <key>pad_front</key>
-      <value>128</value>
+      <value>128*0 + 0</value>
     </param>
     <param>
       <key>pad_rear</key>
-      <value>32</value>
+      <value>32*0 + 16</value>
     </param>
     <param>
       <key>affinity</key>
@@ -2433,6 +2335,65 @@
     <param>
       <key>_coordinate</key>
       <value>(605, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>digital_gmsk_demod</key>
+    <param>
+      <key>id</key>
+      <value>digital_gmsk_demod_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>samples_per_symbol</key>
+      <value>samps_per_sym</value>
+    </param>
+    <param>
+      <key>gain_mu</key>
+      <value>0.175</value>
+    </param>
+    <param>
+      <key>mu</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>omega_relative_limit</key>
+      <value>0.005</value>
+    </param>
+    <param>
+      <key>freq_error</key>
+      <value>0.0</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>log</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(516, 40)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2488,6 +2449,45 @@
     <param>
       <key>_coordinate</key>
       <value>(518, 234)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>mac_packet_to_pdu</key>
+    <param>
+      <key>id</key>
+      <value>mac_packet_to_pdu_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>dewhiten</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>output_invalid</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(966, 61)</value>
     </param>
     <param>
       <key>_rotation</key>

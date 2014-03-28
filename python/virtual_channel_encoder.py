@@ -18,10 +18,11 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+import math
 import numpy
 from gnuradio import gr
-from math import pi
 import pmt
+from constants import *
 
 # ARQ definitions
 #ARQ_FALSE   = 0
@@ -46,6 +47,14 @@ class virtual_channel_encoder(gr.basic_block):
         #self.blocking = False
         self.chan_tracker = chan_tracker
         
+        print "<%s[%s]> MTU: %d" % (self.name(), self.unique_id(), mtu)
+        
+        self.frag_id = 0
+        
+        if not hasattr(self, 'post_msg'):
+            print "'post_msg' not found. Using 'message_port_pub' instead."
+            self.post_msg = self.message_port_pub
+        
         self.message_port_register_out(pmt.intern('out'))
         try:
             self.message_port_register_in(pmt.intern('in'), True)
@@ -59,9 +68,6 @@ class virtual_channel_encoder(gr.basic_block):
         #if prepend_dummy:
         #    self.dummy_meta = pmt.to_pmt({'EM_USE_ARQ': False, 'EM_DUMMY': True})
         #    self.dummy_data = pmt.init_u8vector(0, [])
-        
-        #unique_id
-        #name
     
     #def general_work(self, input_items, output_items):
     #    if not self.blocking:
@@ -112,27 +118,36 @@ class virtual_channel_encoder(gr.basic_block):
         
         #self.blocking = True
         
+        header_flags = CHAN_FLAG_NONE
+        header = []
+        if self.chan_id > -1:
+            header_flags |= CHAN_FLAG_ID
+            header += [self.chan_id]
+        
         if self.mtu <= 0 or len(buf) <= self.mtu:
-            if self.chan_id > -1:
-                buf = [self.chan_id] + buf
-                data = pmt.init_u8vector(len(buf), buf)
-            if hasattr(self, 'post_msg'):
-                self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
-            else:
-                self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
+            buf = [header_flags] + header + buf
+            data = pmt.init_u8vector(len(buf), buf)
+            self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
         else:
+            header_flags |= CHAN_FLAG_FRAG
             i = 0
+            total_len = len(buf)
+            total_frags = int(math.ceil(1.0 * total_len / self.mtu))
+            if total_frags > 255:
+                print "Cannot send a packet of length %d as it would produce too many fragments" % (len(buf))
+                return
+            #meta_dict['EM_FRAG_NUM'] = total_frags
             while len(buf) > 0:
                 data = buf[:min(self.mtu,len(buf))]
-                print "Forming fragment %d (%d bytes) with MTU %d" % ((i+1), len(data), self.mtu)
-                if self.chan_id > -1:
-                    data = [self.chan_id] + data
+                print "Forming fragment %d of %d (%d bytes, %d total) with MTU %d" % ((i+1), total_frags, len(data), total_len, self.mtu)
+                frag_header = header + [self.frag_id, i, total_frags] # FIXME: There will be potential collisions if another encoder is used with the same channel ID
+                data = [header_flags] + frag_header + data
                 data = pmt.init_u8vector(len(data), data)
-                if hasattr(self, 'post_msg'):
-                    self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
-                else:
-                    self.message_port_pub(pmt.intern('out'), pmt.cons(meta, data))
+                #meta_dict['EM_FRAG_IDX'] = i
+                #meta = pmt.to_pmt(meta_dict)
+                self.post_msg(pmt.intern('out'), pmt.cons(meta, data))
                 buf = buf[min(self.mtu,len(buf)):]
                 i += 1
+            self.frag_id = (self.frag_id + 1) % 256
         
         #self.blocking = False

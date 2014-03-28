@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Mon Mar 24 19:03:28 2014</timestamp>
+  <timestamp>Thu Mar 27 21:12:00 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -145,6 +145,10 @@
       <value>samp_rate</value>
     </param>
     <param>
+      <key>autoscale</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>ymin</key>
       <value>-1.0/2</value>
     </param>
@@ -159,6 +163,14 @@
     <param>
       <key>update_time</key>
       <value>0.10</value>
+    </param>
+    <param>
+      <key>entags</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -185,12 +197,220 @@
       <value>""</value>
     </param>
     <param>
-      <key>entags</key>
-      <value>True</value>
+      <key>label1</key>
+      <value></value>
     </param>
     <param>
-      <key>gui_hint</key>
+      <key>width1</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color1</key>
+      <value>"blue"</value>
+    </param>
+    <param>
+      <key>style1</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker1</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha1</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label2</key>
       <value></value>
+    </param>
+    <param>
+      <key>width2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color2</key>
+      <value>"red"</value>
+    </param>
+    <param>
+      <key>style2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker2</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha2</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label3</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width3</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color3</key>
+      <value>"green"</value>
+    </param>
+    <param>
+      <key>style3</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker3</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha3</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label4</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width4</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color4</key>
+      <value>"black"</value>
+    </param>
+    <param>
+      <key>style4</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker4</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha4</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label5</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width5</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color5</key>
+      <value>"cyan"</value>
+    </param>
+    <param>
+      <key>style5</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker5</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha5</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label6</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width6</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color6</key>
+      <value>"magenta"</value>
+    </param>
+    <param>
+      <key>style6</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker6</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha6</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label7</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width7</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color7</key>
+      <value>"yellow"</value>
+    </param>
+    <param>
+      <key>style7</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker7</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha7</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label8</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width8</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color8</key>
+      <value>"dark red"</value>
+    </param>
+    <param>
+      <key>style8</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker8</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha8</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label9</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width9</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color9</key>
+      <value>"dark green"</value>
+    </param>
+    <param>
+      <key>style9</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker9</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha9</key>
+      <value>1.0</value>
     </param>
     <param>
       <key>affinity</key>
@@ -232,6 +452,10 @@
       <value>samp_rate</value>
     </param>
     <param>
+      <key>autoscale</key>
+      <value>False</value>
+    </param>
+    <param>
       <key>ymin</key>
       <value>-1</value>
     </param>
@@ -246,6 +470,14 @@
     <param>
       <key>update_time</key>
       <value>0.10</value>
+    </param>
+    <param>
+      <key>entags</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
     </param>
     <param>
       <key>tr_mode</key>
@@ -272,12 +504,220 @@
       <value>"tx_sob"</value>
     </param>
     <param>
-      <key>entags</key>
-      <value>True</value>
+      <key>label1</key>
+      <value></value>
     </param>
     <param>
-      <key>gui_hint</key>
+      <key>width1</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color1</key>
+      <value>"blue"</value>
+    </param>
+    <param>
+      <key>style1</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker1</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha1</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label2</key>
       <value></value>
+    </param>
+    <param>
+      <key>width2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color2</key>
+      <value>"red"</value>
+    </param>
+    <param>
+      <key>style2</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker2</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha2</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label3</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width3</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color3</key>
+      <value>"green"</value>
+    </param>
+    <param>
+      <key>style3</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker3</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha3</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label4</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width4</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color4</key>
+      <value>"black"</value>
+    </param>
+    <param>
+      <key>style4</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker4</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha4</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label5</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width5</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color5</key>
+      <value>"cyan"</value>
+    </param>
+    <param>
+      <key>style5</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker5</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha5</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label6</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width6</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color6</key>
+      <value>"magenta"</value>
+    </param>
+    <param>
+      <key>style6</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker6</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha6</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label7</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width7</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color7</key>
+      <value>"yellow"</value>
+    </param>
+    <param>
+      <key>style7</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker7</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha7</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label8</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width8</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color8</key>
+      <value>"dark red"</value>
+    </param>
+    <param>
+      <key>style8</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker8</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha8</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>label9</key>
+      <value></value>
+    </param>
+    <param>
+      <key>width9</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>color9</key>
+      <value>"dark green"</value>
+    </param>
+    <param>
+      <key>style9</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>marker9</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>alpha9</key>
+      <value>1.0</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1556,53 +1996,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_socket_pdu</key>
-    <param>
-      <key>id</key>
-      <value>blocks_socket_pdu_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>"TCP_SERVER"</value>
-    </param>
-    <param>
-      <key>host</key>
-      <value></value>
-    </param>
-    <param>
-      <key>port</key>
-      <value>port</value>
-    </param>
-    <param>
-      <key>mtu</key>
-      <value>mtu</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(533, 619)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_tag_debug</key>
     <param>
       <key>id</key>
@@ -1647,61 +2040,6 @@
     <param>
       <key>_rotation</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>mac_virtual_channel_encoder</key>
-    <param>
-      <key>id</key>
-      <value>mac_virtual_channel_encoder_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>dest_addr</key>
-      <value>dest_addr</value>
-    </param>
-    <param>
-      <key>arq</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>mtu</key>
-      <value>mtu</value>
-    </param>
-    <param>
-      <key>chan_id</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>chan_tracker</key>
-      <value></value>
-    </param>
-    <param>
-      <key>prepend_dummy</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(550, 521)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
     </param>
   </block>
   <block>
@@ -1888,77 +2226,6 @@
     </param>
   </block>
   <block>
-    <key>simple_mac</key>
-    <param>
-      <key>id</key>
-      <value>simple_mac_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>addr</key>
-      <value>radio_addr</value>
-    </param>
-    <param>
-      <key>maximum_attempts</key>
-      <value>max_arq_attempts</value>
-    </param>
-    <param>
-      <key>timeout</key>
-      <value>arq_timeout</value>
-    </param>
-    <param>
-      <key>broadcast_interval</key>
-      <value>2.0</value>
-    </param>
-    <param>
-      <key>exp_backoff</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>backoff_randomness</key>
-      <value>0.05</value>
-    </param>
-    <param>
-      <key>node_expiry_delay</key>
-      <value>10.0</value>
-    </param>
-    <param>
-      <key>expire_on_arq_failure</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>only_send_if_alive</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>prepend_dummy</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(820, 372)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>ofdm_radio</key>
     <param>
       <key>id</key>
@@ -2104,17 +2371,188 @@
       <value>0</value>
     </param>
   </block>
+  <block>
+    <key>blocks_socket_pdu</key>
+    <param>
+      <key>id</key>
+      <value>blocks_socket_pdu_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>"TCP_SERVER"</value>
+    </param>
+    <param>
+      <key>host</key>
+      <value></value>
+    </param>
+    <param>
+      <key>port</key>
+      <value>port</value>
+    </param>
+    <param>
+      <key>mtu</key>
+      <value>mtu</value>
+    </param>
+    <param>
+      <key>tcp_no_delay</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(533, 619)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>simple_mac</key>
+    <param>
+      <key>id</key>
+      <value>simple_mac_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>addr</key>
+      <value>radio_addr</value>
+    </param>
+    <param>
+      <key>maximum_attempts</key>
+      <value>max_arq_attempts</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>arq_timeout</value>
+    </param>
+    <param>
+      <key>broadcast_interval</key>
+      <value>2.0</value>
+    </param>
+    <param>
+      <key>exp_backoff</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>backoff_randomness</key>
+      <value>0.05</value>
+    </param>
+    <param>
+      <key>node_expiry_delay</key>
+      <value>10.0</value>
+    </param>
+    <param>
+      <key>expire_on_arq_failure</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>only_send_if_alive</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>prepend_dummy</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(820, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>mac_virtual_channel_encoder</key>
+    <param>
+      <key>id</key>
+      <value>mac_virtual_channel_encoder_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>dest_addr</key>
+      <value>dest_addr</value>
+    </param>
+    <param>
+      <key>arq</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>mtu</key>
+      <value>mtu</value>
+    </param>
+    <param>
+      <key>chan_id</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>chan_tracker</key>
+      <value></value>
+    </param>
+    <param>
+      <key>prepend_dummy</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(550, 521)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blocks_message_strobe_0</source_block_id>
     <sink_block_id>simple_mac_1</sink_block_id>
     <source_key>strobe</source_key>
     <sink_key>ctrl_in</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_socket_pdu_0</source_block_id>
-    <sink_block_id>mac_virtual_channel_encoder_0</sink_block_id>
-    <source_key>pdus</source_key>
-    <sink_key>in</sink_key>
   </connection>
   <connection>
     <source_block_id>ofdm_radio_0</source_block_id>
@@ -2273,12 +2711,6 @@
     <sink_key>print</sink_key>
   </connection>
   <connection>
-    <source_block_id>mac_virtual_channel_encoder_0</source_block_id>
-    <sink_block_id>simple_mac_1</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>from_app_arq</sink_key>
-  </connection>
-  <connection>
     <source_block_id>simple_mac_1</source_block_id>
     <sink_block_id>mac_virtual_channel_decoder_0</sink_block_id>
     <source_key>to_app</source_key>
@@ -2295,5 +2727,17 @@
     <sink_block_id>blocks_tag_debug_0_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_socket_pdu_0</source_block_id>
+    <sink_block_id>mac_virtual_channel_encoder_0</sink_block_id>
+    <source_key>pdus</source_key>
+    <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>mac_virtual_channel_encoder_0</source_block_id>
+    <sink_block_id>simple_mac_1</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>from_app</sink_key>
   </connection>
 </flow_graph>

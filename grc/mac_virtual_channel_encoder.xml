@@ -40,7 +40,7 @@ chan_tracker=self.$(chan_tracker()),
 		</option>
     </param>
 	<param>
-        <name>MTU</name>
+        <name>Payload MTU</name>
         <key>mtu</key>
 		<value>0</value>
         <type>int</type>
