@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Thu Mar 27 23:44:14 2014</timestamp>
+  <timestamp>Thu Mar 27 23:54:58 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -2053,45 +2053,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_tuntap_pdu</key>
-    <param>
-      <key>id</key>
-      <value>blocks_tuntap_pdu_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>ifn</key>
-      <value>iface</value>
-    </param>
-    <param>
-      <key>mtu</key>
-      <value>mtu</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(957, 751)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>mac_virtual_channel_encoder</key>
     <param>
       <key>id</key>
@@ -2546,6 +2507,45 @@
     <param>
       <key>_rotation</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_tuntap_pdu</key>
+    <param>
+      <key>id</key>
+      <value>blocks_tuntap_pdu_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>ifn</key>
+      <value>iface</value>
+    </param>
+    <param>
+      <key>mtu</key>
+      <value>mtu*0 + 512</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(957, 751)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
     </param>
   </block>
   <connection>

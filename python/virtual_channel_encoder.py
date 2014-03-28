@@ -136,10 +136,11 @@ class virtual_channel_encoder(gr.basic_block):
             if total_frags > 255:
                 print "Cannot send a packet of length %d as it would produce too many fragments" % (len(buf))
                 return
+            print "Forming %d fragments with ID %03d for %d total bytes" % (total_frags, self.frag_id, total_len)
             #meta_dict['EM_FRAG_NUM'] = total_frags
             while len(buf) > 0:
                 data = buf[:min(self.mtu,len(buf))]
-                print "Forming fragment %d of %d (%d bytes, %d total) with MTU %d" % ((i+1), total_frags, len(data), total_len, self.mtu)
+                #print "Forming fragment %d of %d (%d bytes, %d total) with MTU %d" % ((i+1), total_frags, len(data), total_len, self.mtu)
                 frag_header = header + [self.frag_id, i, total_frags] # FIXME: There will be potential collisions if another encoder is used with the same channel ID
                 data = [header_flags] + frag_header + data
                 data = pmt.init_u8vector(len(data), data)
