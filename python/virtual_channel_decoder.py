@@ -94,7 +94,7 @@ class virtual_channel_decoder(gr.basic_block):
         
         buf = frag.get_buf()
         del self.frags[frag_id]
-        print "Re-assembled fragment %d (%d bytes total)" % (frag_id, len(buf))
+        #print "Re-assembled fragment %d (%d bytes total)" % (frag_id, len(buf))
         return buf
     
     def clean_frags(self, frag_id):

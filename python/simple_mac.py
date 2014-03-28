@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # 
-# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# Copyright 2013 John Malsbury
+# Copyright 2014 Balint Seeber <balint256@gmail.com>
 # 
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,49 +30,7 @@ import pmt
 from gnuradio.digital import packet_utils
 import gnuradio.digital as gr_digital
 
-#OTA_OUT = 'U'
-#USER_DATA = 'D'
-#USER_DATA_MULTIPLEXED = 'E'
-
-#OTA_IN = 'V'
-#INTERNAL = 'W'
-
-HEARTBEAT = 'H'
-
-ARQ_REQ = 85
-ARQ_NO_REQ = 86
-
-ARQ_PROTOCOL_ID = 90
-BROADCAST_PROTOCOL_ID = 91
-USER_IO_PROTOCOL_ID = 92
-#USER_IO_MULTIPLEXED_ID = 93
-DUMMY_PROTOCOL_ID = 94
-
-BROADCAST_ADDR = 255
-
-#block port definitions
-#RADIO_PORT = 0
-#APP_PORT = 1
-#CTRL_PORT = 2
-
-#msg key indexes for radio outbound blobs
-#KEY_INDEX_CTRL = 0
-#KEY_INDEX_DEST_ADDR = 1
-
-#msg key indexes for internal control messages
-#KEY_INT_MSG_TYPE = 0    
-
-#Packet index definitions
-PKT_INDEX_MAX = 5   # Packet length
-PKT_INDEX_CTRL = 4
-PKT_INDEX_PROT_ID = 3
-PKT_INDEX_DEST = 2
-PKT_INDEX_SRC = 1
-PKT_INDEX_CNT = 0
-
-#ARQ Channel States
-ARQ_CHANNEL_BUSY = 1
-ARQ_CHANNEL_IDLE = 0
+from constants import *
 
 # /////////////////////////////////////////////////////////////////////////////
 #                   Simple MAC w/ ARQ
@@ -363,14 +322,17 @@ class simple_mac(gr.basic_block):
                             print "Discarding out-of-sequence data: %03d (expected: %03d)" % (pkt_cnt, self.arq_expected_sequence_number)
                             if self.debug_stderr: sys.stderr.write("[%.6f] ==> Discarding OoS data %03d (expected: %03d)\n" % (time.time(), pkt_cnt, self.arq_expected_sequence_number))
                         discard = True
-                    self.arq_expected_sequence_number =  ( pkt_cnt + 1 ) % 256
+                    self.arq_expected_sequence_number =  (pkt_cnt + 1) % 256
                 
-                elif incoming_protocol_id != BROADCAST_PROTOCOL_ID:
-                    if not (self.no_arq_expected_sequence_number == data[PKT_INDEX_CNT]):
+                elif not incoming_protocol_id in [BROADCAST_PROTOCOL_ID]:
+                    if self.no_arq_expected_sequence_number != pkt_cnt:
                         self.no_arq_sequence_error_cnt += 1
-                        print "Out-of-sequence data: %03d (expected: %03d, protocol: %d)" % (pkt_cnt, self.no_arq_expected_sequence_number, incoming_protocol_id)
+                        if incoming_protocol_id == ARQ_PROTOCOL_ID and len(data) > PKT_INDEX_MAX and data[5] == self.expected_arq_id:
+                            pass
+                        else:
+                            print "Out-of-sequence data: %03d (expected: %03d, protocol: %d)" % (pkt_cnt, self.no_arq_expected_sequence_number, incoming_protocol_id)
                         if self.debug_stderr: sys.stderr.write("[%.6f] ==> OoS data %03d (expected: %03d, protocol: %d)\n" % (time.time(), pkt_cnt, self.no_arq_expected_sequence_number, incoming_protocol_id))
-                    self.no_arq_expected_sequence_number =  ( pkt_cnt + 1 ) % 256
+                    self.no_arq_expected_sequence_number = (pkt_cnt + 1) % 256
                 
                 # check to see if this is an ACK packet
                 if incoming_protocol_id == ARQ_PROTOCOL_ID:
@@ -381,7 +343,7 @@ class simple_mac(gr.basic_block):
                             if self.debug_stderr: sys.stderr.write("[%.6f] ==> Got ACK %03d while idle\n" % (time.time(), rx_ack, self.pkt_cnt_arq, diff))
                         elif rx_ack == self.expected_arq_id: # 1st byte into payload
                             self.arq_channel_state = ARQ_CHANNEL_IDLE
-                            self.pkt_cnt_arq = ( self.pkt_cnt_arq + 1 ) % 256
+                            self.pkt_cnt_arq = (self.pkt_cnt_arq + 1) % 256
                             diff = time.time() - self.time_of_tx
                             #print "==> ACK took %f sec" % (diff)
                             if self.debug_stderr: sys.stderr.write("[%.6f] ==> Got ACK %03d (next: %03d, took %f sec)\n" % (time.time(), rx_ack, self.pkt_cnt_arq, diff))
@@ -533,7 +495,9 @@ class simple_mac(gr.basic_block):
                 else:
                     self.retries += 1
                     time_now = time.time()
-                    print "[Addr: %03d ID: %03d] ARQ timed out after %.3f s - retry #%d" % (dest, self.expected_arq_id, (time_now - self.time_of_tx), self.retries)
+                    #print "[Addr: %03d ID: %03d] ARQ timed out after %.3f s - retry #%d" % (dest, self.expected_arq_id, (time_now - self.time_of_tx), self.retries)
+                    sys.stderr.write(".")
+                    sys.stderr.flush()
                     self.tx_arq(self.arq_pdu_tuple, USER_IO_PROTOCOL_ID)
                     if self.debug_stderr: sys.stderr.write("[%.6f] ==> [Addr: %03d ID: %03d] ARQ timed out after %.3f s - retry #%d\n" % (time.time(), dest, self.expected_arq_id, (time_now - self.time_of_tx), self.retries))
                     self.time_of_tx = time_now

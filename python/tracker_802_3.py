@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # 
-# Copyright 2013 <+YOU OR YOUR COMPANY+>.
+# Copyright 2013 Balint Seeber <balint256@gmail.com>
 # 
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,13 +58,13 @@ class tracker_802_3(gr.basic_block):
         
         if not 'EM_SRC_ID' in meta_dict:
             if self.verbose:
-                print "[%s] Packet without source channel ID" % (self.name)
+                print "[%s<%s>] Packet without source channel ID" % (self.name(), self.unique_id())
             return
         src_id = meta_dict['EM_SRC_ID']
         
         if len(buf) < 18:
             if self.verbose:
-                print "[%s] Packet is less than Ethernet minimum"
+                print "[%s<%s>] Packet is less than Ethernet minimum" % (self.name(), self.unique_id())
             return
         
         mac_dest = buf[0:6]
@@ -74,15 +74,15 @@ class tracker_802_3(gr.basic_block):
         mac_src_str = ":".join(map(lambda x: ("%02X"%(x)), mac_src))
         
         #if self.verbose:
-        #    print "[%s] (%02d) %s -> %s" % (self.name, src_id, mac_src_str, mac_dest_str)
+        #    print "[%s<%s>] (%02d) %s -> %s" % (self.name(), self.unique_id(), src_id, mac_src_str, mac_dest_str)
         
         with self.lock:
             if mac_src_str in self.mac_to_chan_map and self.mac_to_chan_map[mac_src_str] != src_id:
                 # Same MAC from different source ID
                 if self.verbose:
-                    print "[%s] Same MAC %s from different source ID %d (current mapping: %d)" % (self.name, mac_src_str, src_id, self.mac_to_chan_map[mac_src_str])
+                    print "[%s<%s>] Same MAC %s from different source ID %d (current mapping: %d)" % (self.name(), self.unique_id(), mac_src_str, src_id, self.mac_to_chan_map[mac_src_str])
             elif not mac_src_str in self.mac_to_chan_map:
-                print "[%s] %s -> %02d" % (self.name, mac_src_str, src_id)
+                print "[%s<%s>] %s -> %02d" % (self.name(), self.unique_id(), mac_src_str, src_id)
             
             #if src_id in self.chan_to_mac_map and self.chan_to_mac_map[src_id] != mac_src_str:
             #    # Already have a MAC from a source ID, but now seeing a different MAC
@@ -105,12 +105,12 @@ class tracker_802_3(gr.basic_block):
                 mac_str = buf[0:6]
             if not mac_str:
                 if self.verbose:
-                    print "[%s:get_addr] Unknown argument type" % (self.name)
+                    print "[%s<%s>:get_addr] Unknown argument type" % (self.name(), self.unique_id())
                 return -1
             if not isinstance(buf, str):
                 mac_str = ":".join(map(lambda x: ("%02X"%(x)), mac_str))
             if not mac_str in self.mac_to_chan_map:
                 if self.verbose:
-                    print "[%s:get_addr] MAC not in map: %s" % (self.name, mac_str)
+                    print "[%s<%s>:get_addr] MAC not in map: %s" % (self.name(), self.unique_id(), mac_str)
                 return -1
             return self.mac_to_chan_map[mac_str]

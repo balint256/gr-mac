@@ -24,10 +24,6 @@ from gnuradio import gr
 import pmt
 from constants import *
 
-# ARQ definitions
-#ARQ_FALSE   = 0
-#ARQ_TRUE    = 1
-
 class virtual_channel_encoder(gr.basic_block):
     """
     docstring for block virtual_channel_encoder
@@ -136,7 +132,7 @@ class virtual_channel_encoder(gr.basic_block):
             if total_frags > 255:
                 print "Cannot send a packet of length %d as it would produce too many fragments" % (len(buf))
                 return
-            print "Forming %d fragments with ID %03d for %d total bytes" % (total_frags, self.frag_id, total_len)
+            #print "Forming %d fragments with ID %03d for %d total bytes" % (total_frags, self.frag_id, total_len)
             #meta_dict['EM_FRAG_NUM'] = total_frags
             while len(buf) > 0:
                 data = buf[:min(self.mtu,len(buf))]
