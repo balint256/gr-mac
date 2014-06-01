@@ -31,13 +31,15 @@ private:
 	void add_eob(uint64_t item);
 	void add_sob(uint64_t item);
 
-	pmt::pmt_t d_tag_name;
+	pmt::pmt_t d_tag_name, d_ignore_name;
 	int d_copy, d_current_length;
-	unsigned int d_mult, d_pad_front, d_pad_rear;
+	float d_mult;
+	unsigned int d_pad_front, d_pad_rear;
 	unsigned int d_to_pad_front/*, d_to_pad_rear*/;
-	bool d_in_burst, d_drop_residue;
+	bool d_in_burst, d_drop_residue, d_verbose;
+	uint64_t d_count, d_work_count;
 public:
-	burst_tagger_impl(const std::string& tag_name = "length", unsigned int mult = 1, unsigned int pad_front = 0, unsigned int pad_rear = 0, bool drop_residue = true);
+	burst_tagger_impl(const std::string& tag_name = "length", float mult = 1, unsigned int pad_front = 0, unsigned int pad_rear = 0, bool drop_residue = true, bool verbose = true);
 	~burst_tagger_impl();
 
 	void forecast (int noutput_items, gr_vector_int &ninput_items_required);

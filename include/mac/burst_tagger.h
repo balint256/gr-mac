@@ -31,7 +31,7 @@ class MAC_API burst_tagger : virtual public gr::block {
 public:
 	typedef boost::shared_ptr<burst_tagger> sptr;
 
-	static sptr make(const std::string& tag_name = "length", unsigned int mult = 1, unsigned int pad_front = 0, unsigned int pad_rear = 0, bool drop_residue = true);
+	static sptr make(const std::string& tag_name = "length", float mult = 1.0f, unsigned int pad_front = 0, unsigned int pad_rear = 0, bool drop_residue = true, bool verbose = true);
 };
 
 } // namespace mac
