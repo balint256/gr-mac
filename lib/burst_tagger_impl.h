@@ -1,5 +1,6 @@
 /* -*- c++ -*- */
 /* 
+ * Copyright 2014 Balint Seeber <balint256@gmail.com>
  * Copyright 2013 Bastian Bloessl <bloessl@ccs-labs.org>.
  * 
  * This is free software; you can redistribute it and/or modify

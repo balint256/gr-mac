@@ -218,7 +218,7 @@ int burst_tagger_impl::general_work(int noutput_items, gr_vector_int& ninput_ite
 						return 0;
 					}
 					
-					fprintf(stderr, "Copied %llu items outside burst (after #%llu) waiting for tag\n", cpy, d_count);
+					if (d_verbose) fprintf(stderr, "Copied %llu items outside burst (after #%llu) waiting for tag\n", cpy, d_count);
 				}
 				
 				return cpy;
@@ -317,20 +317,26 @@ int burst_tagger_impl::general_work(int noutput_items, gr_vector_int& ninput_ite
 	{
 		uint64_t read = nitems_read(0);
 		
-		consume(0, noutput_items);
+		if (noutput_items > ninput_items[0])
+		{
+			fprintf(stderr, "noutput_items: %d > ninput_items: %d\n", noutput_items, ninput_items[0]);
+		}
 		
 		if (d_in_burst == false)
 		{
 			if (d_drop_residue)
 			{
+				consume(0, noutput_items);
 				fprintf(stderr, "[%llu] ! Dropping %d items outside burst (after #%llu) waiting for tag (work with no tags) (work started reading at: %llu)\n", d_work_count, noutput_items, d_count, read);
 				return 0;
 			}
 			
-			fprintf(stderr, "Copied %lu items outside burst (after #%llu, work with no tags)\n", noutput_items, d_count);
+			if (d_verbose) fprintf(stderr, "Copied %lu items outside burst (after #%llu, work with no tags)\n", noutput_items, d_count);
 		}
 		
 		std::memcpy(out, in, noutput_items * sizeof(gr_complex));
+		
+		consume(0, noutput_items);
 		
 		return noutput_items;
 	}
