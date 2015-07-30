@@ -145,7 +145,7 @@ class msg_to_pdu_thread(threading.Thread):
     def stop(self):
         #print "Stopping..."
         self.keep_running = False
-        msg = gr.message()  # Empty message to signal end
+        msg = gr.message(-1)  # Empty message to signal end
         self.msgq.insert_tail(msg)
         self.stop_event.wait()
         #print "Stopped"
@@ -159,8 +159,12 @@ class msg_to_pdu_thread(threading.Thread):
                     break
                 try:
                     msg_str = msg.to_string()
-                    if len(msg_str) == 0:
+                    #if len(msg_str) == 0:
+                    if len(msg_str) == 0 and msg.type() == -1:
+                        print "Empty message"
                         continue
+                    #if msg.length() == 0:
+                    #    print "Zero length message"
                     if self.post_fn:
                         self.post_fn(msg_str, msg.type(), msg.arg1(), msg.arg2())
                 except Exception, e:
@@ -170,33 +174,46 @@ class msg_to_pdu_thread(threading.Thread):
 
 
 class packet_to_pdu(gr.basic_block):
-    def __init__(self, msgq, dewhiten=True, output_invalid=False):
+    def __init__(self, msgq, dewhiten=True, output_invalid=False, log_invalid=False):
         gr.basic_block.__init__(self, name="packet_to_pdu", in_sig=None, out_sig=None)
         self.message_port_register_out(pmt.intern('pdu'))
+        self.message_port_register_out(pmt.intern('invalid'))
         self.msgq = msgq
         self.dewhiten = dewhiten
         self.output_invalid = output_invalid
+        self.log_invalid = log_invalid
         self.thread = None
         self.start()
     def post_data(self, data, type=None, arg1=None, arg2=None):
-        ok, payload = packet_utils.unmake_packet(data, int(arg1), self.dewhiten)
-        if not ok:
-            #print "Packet of length %d failed CRC" % (len(data))    # Max len is 4095
-            if not self.output_invalid:
-                return
+        ok = True
+        payload = ""
+        if len(data) > 0:
+            ok, payload = packet_utils.unmake_packet(data, int(arg1), self.dewhiten)
+            if not ok:
+                if self.log_invalid:
+                    print "Packet of length %d failed CRC" % (len(data))    # Max len is 4095
+                #if not self.output_invalid:
+                #    return
         payload = map(ord, list(payload))
         buf = pmt.init_u8vector(len(payload), payload)
         meta_dict = {'CRC_OK': ok}
+        if len(data) == 0:
+            meta_dict['EMPTY'] = True
         meta = pmt.to_pmt(meta_dict)
-        self.message_port_pub(pmt.intern('pdu'), pmt.cons(meta, buf))
+        if ok or (self.output_invalid and not ok):
+            self.message_port_pub(pmt.intern('pdu'), pmt.cons(meta, buf))
+        else:
+            self.message_port_pub(pmt.intern('invalid'), pmt.cons(meta, buf))
     def start(self):
         if self.thread is None:
             self.thread = msg_to_pdu_thread(self.msgq, self.post_data)
             self.thread.start()
+        return True
     def stop(self):
         if self.thread:
             self.thread.stop()
             self.thread = None
+        return True
     def __del__(self):
         self.stop()
 

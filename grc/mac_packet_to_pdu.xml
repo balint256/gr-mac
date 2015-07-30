@@ -8,7 +8,7 @@
     <name>Packet to PDU</name>
     <key>mac_packet_to_pdu</key>
     <import>import mac</import>
-    <make>mac.packet_to_pdu(msgq=$(id)_msgq_in, dewhiten=$dewhiten, output_invalid=$output_invalid)</make>
+    <make>mac.packet_to_pdu(msgq=$(id)_msgq_in, dewhiten=$dewhiten, output_invalid=$output_invalid, log_invalid=$log_invalid)</make>
     <param>
 		<name>Dewhiten</name>
 		<key>dewhiten</key>
@@ -39,6 +39,21 @@
 			<key>False</key>
 		</option>
 	</param>
+    <param>
+        <name>Log invalid</name>
+        <key>log_invalid</key>
+        <value>False</value>
+        <type>enum</type>
+        <!--<hide>#if str($dewhiten()) == 'True' then 'none' else 'part'#</hide>-->
+        <option>
+            <name>Yes</name>
+            <key>True</key>
+        </option>
+        <option>
+            <name>No</name>
+            <key>False</key>
+        </option>
+    </param>
     <sink>
         <name>msg</name>
         <type>msg</type>
@@ -46,6 +61,12 @@
     <source>
         <name>pdu</name>
         <type>message</type>
+        <optional>1</optional>
+    </source>
+    <source>
+        <name>invalid</name>
+        <type>message</type>
+        <optional>1</optional>
     </source>
     <doc>
 Access Code: string of 1's and 0's, leave blank for automatic.
